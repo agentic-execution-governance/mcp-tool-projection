@@ -35,12 +35,12 @@ Prove that tool projections over arbitrary MCP servers can be defined declarativ
 
 **Deliverable**: install, list, and remove MCP server definitions locally.
 
-- [ ] Registry schema: `{ name, transport, command, args, env, installedAt }` — validated with `zod`
-- [ ] Storage: `~/.mcp-projection/registry.json` (or XDG config dir)
-- [ ] `mcp registry install <path-or-url>` — add a definition
-- [ ] `mcp registry list` — list installed servers
-- [ ] `mcp registry remove <name>` — remove a definition
-- [ ] Registry-aware variants of Phase 1 commands: `mcp tools list <name>` where `<name>` resolves from registry
+- [x] Registry schema: `{ name, transport, command, args, env, installedAt }` — validated with `zod`
+- [x] Storage: `~/.mcp-projection/registry.json` (or XDG config dir)
+- [x] `mcp registry install <path-or-url>` — add a definition
+- [x] `mcp registry list` — list installed servers
+- [x] `mcp registry remove <name>` — remove a definition
+- [x] Registry-aware variants of Phase 1 commands: `mcp tools list <name>` where `<name>` resolves from registry
 
 **Exit criterion**: round-trip install → list tools → call tool using only a server name.
 

@@ -1,15 +1,33 @@
 import { Command } from "commander";
 import { loadServerConfig } from "./config.js";
 import { listTools, callTool } from "./client.js";
+import { getEntry } from "../registry/store.js";
+import type { ServerConfig } from "./config.js";
+
+function resolveConfig(nameOrFile: string): ServerConfig {
+  // If the argument looks like a file path, load it directly.
+  if (nameOrFile.includes("/") || nameOrFile.includes(".")) {
+    return loadServerConfig(nameOrFile);
+  }
+  // Otherwise treat it as a registry name.
+  const entry = getEntry(nameOrFile);
+  if (!entry) {
+    console.error(
+      `'${nameOrFile}' not found in registry. Run: mcp-proj registry install <config-file>`,
+    );
+    process.exit(1);
+  }
+  return entry;
+}
 
 export const toolsCommand = new Command("tools").description("Interact with a running MCP server");
 
 toolsCommand
-  .command("list <config-file>")
-  .description("List tools exposed by an MCP server")
+  .command("list <name-or-file>")
+  .description("List tools exposed by an MCP server (registry name or config file path)")
   .option("--json", "Output raw JSON")
-  .action(async (configFile: string, opts: { json?: boolean }) => {
-    const config = loadServerConfig(configFile);
+  .action(async (nameOrFile: string, opts: { json?: boolean }) => {
+    const config = resolveConfig(nameOrFile);
     const tools = await listTools(config);
 
     if (opts.json) {
@@ -25,10 +43,10 @@ toolsCommand
   });
 
 toolsCommand
-  .command("call <config-file> <tool-name> [params-json]")
-  .description("Call a tool on an MCP server")
-  .action(async (configFile: string, toolName: string, paramsJson?: string) => {
-    const config = loadServerConfig(configFile);
+  .command("call <name-or-file> <tool-name> [params-json]")
+  .description("Call a tool on an MCP server (registry name or config file path)")
+  .action(async (nameOrFile: string, toolName: string, paramsJson?: string) => {
+    const config = resolveConfig(nameOrFile);
     const params = paramsJson ? (JSON.parse(paramsJson) as Record<string, unknown>) : {};
     const result = await callTool(config, toolName, params);
 
