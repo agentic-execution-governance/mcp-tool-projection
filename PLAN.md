@@ -116,7 +116,75 @@ params:
 
 ---
 
-## Phase 5 — Dynamic Resolvers (3–4 days)
+## Phase 5 — Profile / World (3–4 days)
+
+**Deliverable**: a single file that defines a coherent tool surface across _multiple_ upstream MCP servers. A Profile is to projections what a Kubernetes manifest is to env vars — individual entries can be inline or referenced from external files.
+
+### Concept
+
+The current proxy (Phase 4) wraps one upstream. A Profile composes _N_ upstreams with per-server projection sets and presents a single, unified `tools/list` to the client. The proxy learns to consume a Profile instead of (or in addition to) a bare upstream + projections-dir pair.
+
+```text
+Profile
+ ├── server: brave-search
+ │    ├── projection (inline):  absent → brave_image_search
+ │    └── projection (file ref): projections/search-readonly.yaml
+ └── server: email-server
+      ├── projection (file ref): projections/send-corporate-email.yaml
+      └── projection (inline):  absent → delete_email
+```
+
+### File format
+
+```yaml
+# profiles/production.yaml
+name: production
+description: "Restricted, audited tool surface for production agents"
+
+servers:
+  - upstream: brave-search          # registry name or inline server config
+    projections:
+      - file: projections/search-readonly.yaml   # file reference
+      - kind: absent                             # inline projection
+        name: hide-image-search
+        tool: brave_image_search
+
+  - upstream: email-server
+    projections:
+      - file: projections/send-corporate-email.yaml
+      - kind: absent
+        name: no-delete
+        tool: delete_email
+```
+
+Inline projections follow the same schema as standalone files (same zod union), minus the top-level `server` field (it is inherited from the enclosing `servers` entry).
+
+### Tool name collisions
+
+When two upstreams expose a tool with the same name the Profile must declare a resolution strategy (default: `error`):
+
+```yaml
+collision: prefix        # rewrite conflicting tools as <server>__<tool>
+# collision: error       # (default) refuse to start
+# collision: first       # keep the first server's tool, silently drop others
+```
+
+### Profile tasks
+
+- [ ] `src/profile/schema.ts` — zod schema for `ProfileSchema`; inline projection entries omit `server` and are unioned with a `{ file: string }` reference type
+- [ ] `src/profile/loader.ts` — load a profile file; resolve file-referenced projections; validate the merged result
+- [ ] `src/profile/resolver.ts` — expand a Profile into a flat `Map<serverName, ProjectionSet>`; apply collision strategy
+- [ ] `src/proxy/server.ts` — extend `createProxyServer` / `serveStdio` to accept a Profile in addition to a single upstream + projection set
+- [ ] `mcp-proj profile validate <profile-file>` — parse, resolve all file refs, report errors
+- [ ] `mcp-proj profile list <profile-file>` — print the effective tool surface (server → tool → kind)
+- [ ] `mcp-proj serve --profile <profile-file>` — start the proxy using a Profile
+- [ ] Unit tests: file refs resolved correctly; inline projections parsed; collision strategies enforced
+
+**Exit criterion**: `mcp-proj serve --profile profiles/production.yaml` starts a proxy that hides and scopes tools from multiple upstream servers, described entirely in one file.
+
+---
+
+## Phase 6 — Dynamic Resolvers (3–4 days)
 
 **Deliverable**: projection params and simulated responses can be computed at call-time by a resolver script, not just hardcoded in the definition file.
 
@@ -166,7 +234,7 @@ resultResolver:
 
 ---
 
-## Phase 6 — Remote Catalog Integration (2–3 days)
+## Phase 7 — Remote Catalog Integration (2–3 days)
 
 **Deliverable**: browse and install MCP server definitions from `https://github.com/mcp`.
 
@@ -179,7 +247,7 @@ resultResolver:
 
 ---
 
-## Phase 7 — Governance & Audit Layer (stretch)
+## Phase 8 — Governance & Audit Layer (stretch)
 
 **Deliverable**: every tool call (real or simulated) is logged with metadata.
 
@@ -209,6 +277,7 @@ resultResolver:
 | Local registry | 2 | `mcp registry install ./server.json` |
 | Projections | 3 | `mcp projection run ./proj.yaml` |
 | Proxy server | 4 | `mcp-proj serve echo-server projections/` |
-| Dynamic resolvers | 5 | _(config-driven, no new command)_ |
-| Catalog | 6 | `mcp catalog install brave-search` |
-| Governance | 7 | `mcp audit tail` |
+| Profile / World | 5 | `mcp-proj serve --profile profiles/production.yaml` |
+| Dynamic resolvers | 6 | _(config-driven, no new command)_ |
+| Catalog | 7 | `mcp catalog install brave-search` |
+| Governance | 8 | `mcp audit tail` |
