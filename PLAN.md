@@ -223,12 +223,12 @@ resultResolver:
 
 ### Resolver tasks
 
-- [ ] `src/resolvers/types.ts` — zod schema for `ParamResolver` and `ResultResolver` unions
-- [ ] `src/resolvers/runner.ts` — `runParamResolver(resolver, params)` and `runResultResolver(resolver, params)`
-- [ ] Extend `PartialProjectionSchema` with optional `paramResolver` field; when present, resolver output replaces the static `params` merge
-- [ ] Extend `SimulatedProjectionSchema` with optional `resultResolver` field; when present, resolver runs instead of returning `response`
-- [ ] Sandbox consideration: `inline-js` runs in the same process — document the trust model; `script-file` is run via `node --input-type=module` child process for isolation
-- [ ] Unit tests: param resolver receives merged params correctly; result resolver output is returned as content; static fallback still works when resolver is absent
+- [x] `src/resolvers/types.ts` — zod schema for `ParamResolver` and `ResultResolver` unions
+- [x] `src/resolvers/runner.ts` — `runParamResolver(resolver, params)` and `runResultResolver(resolver, params)`
+- [x] Extend `PartialProjectionSchema` with optional `paramResolver` field; when present, resolver output replaces the static `params` merge
+- [x] Extend `SimulatedProjectionSchema` with optional `resultResolver` field; when present, resolver runs instead of returning `response`
+- [x] Sandbox consideration: `inline-js` runs in the same process — document the trust model; `script-file` is run via `node --input-type=module` child process for isolation
+- [x] Unit tests: param resolver receives merged params correctly; result resolver output is returned as content; static fallback still works when resolver is absent
 
 **Exit criterion**: a `partial` projection with `paramResolver` can transform caller params before the tool is called; a `simulated` projection with `resultResolver` can return dynamically computed content.
 

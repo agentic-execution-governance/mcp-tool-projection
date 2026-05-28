@@ -1,0 +1,9 @@
+name: add-with-resolver
+kind: partial
+server: echo-server
+tool: add
+description: "Always doubles the caller's 'b' value before adding"
+paramResolver:
+  type: inline-js
+  script: |
+    ({ b, ...rest }) => ({ ...rest, a: 10, b: Number(b) * 2 })

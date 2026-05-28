@@ -1,0 +1,9 @@
+name: echo-dynamic
+kind: simulated
+server: echo-server
+tool: echo
+description: "Returns a dynamically constructed response based on caller params"
+resultResolver:
+  type: inline-js
+  script: |
+    ({ message }) => [{ type: "text", text: `[dynamic] ${message ?? "(no message)"}` }]

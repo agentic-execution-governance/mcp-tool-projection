@@ -1,5 +1,6 @@
 import { getEntry } from "../registry/store.js";
 import { callTool } from "../server/client.js";
+import { runParamResolver, runResultResolver } from "../resolvers/runner.js";
 import type { Projection } from "./schema.js";
 import type { ServerConfig } from "../server/config.js";
 
@@ -34,8 +35,13 @@ export async function runProjection(
     case "absent":
       throw new AbsentToolError(projection.name, projection.tool);
 
-    case "simulated":
-      return { content: projection.response as unknown[] };
+    case "simulated": {
+      if (projection.resultResolver) {
+        const content = await runResultResolver(projection.resultResolver, callerParams);
+        return { content };
+      }
+      return { content: (projection.response ?? []) as unknown[] };
+    }
 
     case "verbatim": {
       const config = configOverride ?? resolveServer(projection.server);
@@ -44,8 +50,14 @@ export async function runProjection(
 
     case "partial": {
       const config = configOverride ?? resolveServer(projection.server);
-      // Definition params are defaults; caller params take precedence.
-      const merged = { ...projection.params, ...callerParams };
+      let merged: Record<string, unknown>;
+      if (projection.paramResolver) {
+        // Resolver receives caller params and returns the final param object.
+        merged = await runParamResolver(projection.paramResolver, callerParams);
+      } else {
+        // Definition params are defaults; caller params take precedence.
+        merged = { ...projection.params, ...callerParams };
+      }
       return callTool(config, projection.tool, merged);
     }
   }
