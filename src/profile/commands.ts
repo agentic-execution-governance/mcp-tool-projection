@@ -2,8 +2,9 @@ import { Command } from "commander";
 import { resolve } from "node:path";
 import { loadProfile } from "./loader.js";
 
-export const profileCommand = new Command("profile")
-  .description("Inspect and validate profile files");
+export const profileCommand = new Command("profile").description(
+  "Inspect and validate profile files",
+);
 
 profileCommand
   .command("validate <profile-file>")
@@ -14,7 +15,9 @@ profileCommand
       const serverCount = profile.servers.length;
       const projCount = profile.servers.reduce((n, s) => n + s.projections.length, 0);
       console.log(`Profile '${profile.name}' is valid.`);
-      console.log(`  Servers: ${serverCount}, Projections: ${projCount}, Collision: ${profile.collision}`);
+      console.log(
+        `  Servers: ${serverCount}, Projections: ${projCount}, Collision: ${profile.collision}`,
+      );
     } catch (err) {
       console.error("Invalid profile:", err instanceof Error ? err.message : String(err));
       process.exit(1);

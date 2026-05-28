@@ -30,9 +30,7 @@ export function loadProfile(filePath: string): ResolvedProfile {
     collision: profile.collision,
     servers: profile.servers.map((entry) => ({
       upstream: entry.upstream,
-      projections: entry.projections.map((pe) =>
-        resolveEntry(pe, entry.upstream, baseDir),
-      ),
+      projections: entry.projections.map((pe) => resolveEntry(pe, entry.upstream, baseDir)),
     })),
   };
 }
