@@ -1,0 +1,5 @@
+{
+  "name": "echo-server",
+  "command": "npx",
+  "args": ["tsx", "examples/echo-server.ts"]
+}

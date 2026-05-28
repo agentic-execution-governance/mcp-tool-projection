@@ -10,11 +10,11 @@ Prove that tool projections over arbitrary MCP servers can be defined declarativ
 
 **Deliverable**: runnable TypeScript project, CI, basic CLI skeleton.
 
-- [ ] `npm init`, TypeScript config, ESLint, Prettier
-- [ ] Add `@modelcontextprotocol/sdk`, `zod`, `commander` (CLI), `js-yaml`
-- [ ] Directory structure: `src/{registry,server,projection,catalog,cli}/`
-- [ ] `src/cli/index.ts` entry point with `--help`
-- [ ] Vitest for tests, basic CI workflow (GitHub Actions)
+- [x] `npm init`, TypeScript config, ESLint, Prettier
+- [x] Add `@modelcontextprotocol/sdk`, `zod`, `commander` (CLI), `js-yaml`
+- [x] Directory structure: `src/{registry,server,projection,catalog,cli}/`
+- [x] `src/cli/index.ts` entry point with `--help`
+- [x] Vitest for tests, basic CI workflow (GitHub Actions)
 
 ---
 
@@ -22,10 +22,10 @@ Prove that tool projections over arbitrary MCP servers can be defined declarativ
 
 **Deliverable**: connect to a local MCP server and list / call tools.
 
-- [ ] `src/server/client.ts` — thin wrapper around `@modelcontextprotocol/sdk` StdioClientTransport
-- [ ] `mcp tools list <server-config>` CLI command — calls `tools/list`, prints tool names + schemas
-- [ ] `mcp tools call <server-config> <tool> [params-json]` CLI command — calls `tools/call`
-- [ ] Unit tests with a mock MCP server (in-process stdio pair)
+- [x] `src/server/client.ts` — thin wrapper around `@modelcontextprotocol/sdk` StdioClientTransport
+- [x] `mcp tools list <server-config>` CLI command — calls `tools/list`, prints tool names + schemas
+- [x] `mcp tools call <server-config> <tool> [params-json]` CLI command — calls `tools/call`
+- [x] Unit tests with a mock MCP server (in-process stdio pair)
 
 **Exit criterion**: can list and call tools from any stdio MCP server given a config file.
 
