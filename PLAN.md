@@ -82,7 +82,91 @@ description: "Web search with hardcoded safety and result-count settings"
 
 ---
 
-## Phase 4 — Remote Catalog Integration (2–3 days)
+## Phase 4 — Projection Proxy Server (3–4 days)
+
+**Deliverable**: apply a set of projections to an upstream MCP server and expose the result as a new MCP server. Callers connect to the proxy; it handles `tools/list` and `tools/call` transparently.
+
+### Behaviour
+
+- `tools/list` response is the upstream list with projections applied:
+  - `absent` tools are removed
+  - `partial`, `verbatim`, `simulated` tools are kept (optionally renamed via `projectedName`)
+- `tools/call` routes through the projection engine — the caller never talks to the upstream directly
+
+### Schema addition
+
+```yaml
+# projections/add-partial.yaml — same as before, proxy reads the whole dir
+name: add-partial
+kind: partial
+server: echo-server      # still used to find the upstream config
+tool: add
+params:
+  a: 10
+```
+
+### Tasks
+
+- [ ] `src/proxy/server.ts` — MCP server that wraps an upstream; applies a projection set at startup
+- [ ] `src/proxy/router.ts` — for each incoming `tools/call`, look up the matching projection and delegate to `runProjection()`; fall through to raw upstream call if no projection matches
+- [ ] `mcp-proj serve <upstream-name-or-file> <projections-dir>` CLI command — launches the proxy on stdio (drop-in replacement for the upstream)
+- [ ] Integration test: proxy started in-process via `InMemoryTransport`; verify absent tools are hidden and partial params are merged
+
+**Exit criterion**: `mcp-proj serve echo-server projections/` can be used as an MCP server where `add` is absent and `add-partial` is exposed with pre-filled `a`.
+
+---
+
+## Phase 5 — Dynamic Resolvers (3–4 days)
+
+**Deliverable**: projection params and simulated responses can be computed at call-time by a resolver script, not just hardcoded in the definition file.
+
+### Two resolver kinds
+
+**Param resolver** (extends `partial`) — a script that receives the caller's raw params and returns the final merged params. Example use-case: append `@example.com` to a `user` argument to build a `recipient` address for a `send_corporate_email` tool.
+
+```yaml
+name: send-corporate-email
+kind: partial
+server: email-server
+tool: send_email
+paramResolver:
+  type: inline-js
+  script: |
+    ({ user, ...rest }) => ({ ...rest, recipient: user + "@example.com" })
+```
+
+**Result resolver** (extends `simulated`) — a script that runs instead of returning a static response. Example use-case: call an internal HTTP endpoint and return its output as the tool result.
+
+```yaml
+name: weather-mock
+kind: simulated
+server: weather-server
+tool: get_weather
+resultResolver:
+  type: inline-js
+  script: |
+    async ({ city }) => [{ type: "text", text: `Weather in ${city}: sunny` }]
+```
+
+### Resolver types (first iteration)
+
+- `inline-js` — a JS arrow function evaluated with `new AsyncFunction()`; receives caller params, returns content array (for result resolver) or params object (for param resolver)
+- `script-file` — path to a `.mjs` / `.ts` script that default-exports the same function signature
+
+### Resolver tasks
+
+- [ ] `src/resolvers/types.ts` — zod schema for `ParamResolver` and `ResultResolver` unions
+- [ ] `src/resolvers/runner.ts` — `runParamResolver(resolver, params)` and `runResultResolver(resolver, params)`
+- [ ] Extend `PartialProjectionSchema` with optional `paramResolver` field; when present, resolver output replaces the static `params` merge
+- [ ] Extend `SimulatedProjectionSchema` with optional `resultResolver` field; when present, resolver runs instead of returning `response`
+- [ ] Sandbox consideration: `inline-js` runs in the same process — document the trust model; `script-file` is run via `node --input-type=module` child process for isolation
+- [ ] Unit tests: param resolver receives merged params correctly; result resolver output is returned as content; static fallback still works when resolver is absent
+
+**Exit criterion**: a `partial` projection with `paramResolver` can transform caller params before the tool is called; a `simulated` projection with `resultResolver` can return dynamically computed content.
+
+---
+
+## Phase 6 — Remote Catalog Integration (2–3 days)
 
 **Deliverable**: browse and install MCP server definitions from `https://github.com/mcp`.
 
@@ -95,7 +179,7 @@ description: "Web search with hardcoded safety and result-count settings"
 
 ---
 
-## Phase 5 — Governance & Audit Layer (stretch)
+## Phase 7 — Governance & Audit Layer (stretch)
 
 **Deliverable**: every tool call (real or simulated) is logged with metadata.
 
@@ -124,5 +208,7 @@ description: "Web search with hardcoded safety and result-count settings"
 | Server runner | 1 | `mcp tools list ./server.json` |
 | Local registry | 2 | `mcp registry install ./server.json` |
 | Projections | 3 | `mcp projection run ./proj.yaml` |
-| Catalog | 4 | `mcp catalog install brave-search` |
-| Governance | 5 | `mcp audit tail` |
+| Proxy server | 4 | `mcp-proj serve echo-server projections/` |
+| Dynamic resolvers | 5 | _(config-driven, no new command)_ |
+| Catalog | 6 | `mcp catalog install brave-search` |
+| Governance | 7 | `mcp audit tail` |
