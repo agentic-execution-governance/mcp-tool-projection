@@ -1,0 +1,7 @@
+name: add-partial
+kind: partial
+server: echo-server
+tool: add
+description: "Add with a fixed first operand of 10"
+params:
+  a: 10

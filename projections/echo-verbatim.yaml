@@ -1,0 +1,5 @@
+name: echo-verbatim
+kind: verbatim
+server: echo-server
+tool: echo
+description: "Pass-through alias for the echo tool"

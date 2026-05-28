@@ -1,0 +1,5 @@
+name: add-absent
+kind: absent
+server: echo-server
+tool: add
+description: "Hides the add tool from callers"

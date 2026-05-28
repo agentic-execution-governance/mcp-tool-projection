@@ -2,6 +2,7 @@
 import { program } from "commander";
 import { toolsCommand } from "../server/commands.js";
 import { registryCommand } from "../registry/commands.js";
+import { projectionCommand } from "../projection/commands.js";
 
 program
   .name("mcp-proj")
@@ -10,7 +11,7 @@ program
 
 program.addCommand(toolsCommand);
 program.addCommand(registryCommand);
-// program.addCommand(projectionCommand) // Phase 3
+program.addCommand(projectionCommand);
 // program.addCommand(catalogCommand)    // Phase 4
 
 program.parse();

@@ -1,0 +1,8 @@
+name: echo-simulated
+kind: simulated
+server: echo-server
+tool: echo
+description: "Always returns a canned response without calling the server"
+response:
+  - type: text
+    text: "(simulated)"

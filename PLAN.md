@@ -64,19 +64,19 @@ params:
 description: "Web search with hardcoded safety and result-count settings"
 ```
 
-- [ ] `zod` schema for all three kinds (`partial`, `simulated`, `verbatim`)
-- [ ] Loader: `src/projection/loader.ts` — reads YAML/JSON, validates, returns typed definition
+- [x] `zod` schema for all four kinds (`partial`, `simulated`, `verbatim`, `absent`)
+- [x] Loader: `src/projection/loader.ts` — reads YAML/JSON, validates, returns typed definition
 
 ### 3b — Execution engine
 
-- [ ] `src/projection/engine.ts` — dispatch by kind:
+- [x] `src/projection/engine.ts` — dispatch by kind:
   - `verbatim`: call tool with caller-supplied params as-is
   - `partial`: merge `definition.params` (defaults) with caller-supplied params (overrides), then call
   - `simulated`: return `definition.response` without any MCP call
   - `absent`: suppress the tool from `tools/list` responses; reject any `tools/call` for it with an error
-- [ ] `mcp projection run <definition-file> [params-json]` CLI command
-- [ ] `mcp projection list <dir>` — list projections in a directory
-- [ ] Unit tests for each kind, including param-merge edge cases
+- [x] `mcp projection run <definition-file> [params-json]` CLI command
+- [x] `mcp projection list <dir>` — list projections in a directory
+- [x] Unit tests for each kind, including param-merge edge cases
 
 **Exit criterion**: all three projection kinds work end-to-end; no per-projection code needed.
 
