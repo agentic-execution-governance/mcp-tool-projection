@@ -1,0 +1,25 @@
+# Example profile: restricted, audited tool surface for production agents.
+# Start with: mcp-proj serve --profile profiles/production.yaml
+name: production
+description: "Restricted tool surface for production agents"
+collision: prefix
+
+servers:
+  - upstream: brave-search
+    projections:
+      - file: projections/add-partial.yaml
+      - kind: absent
+        name: hide-image-search
+        tool: brave_image_search
+
+  - upstream: echo-server
+    projections:
+      - kind: absent
+        name: no-add
+        tool: add
+      - kind: simulated
+        name: echo-mocked
+        tool: echo
+        response:
+          - type: text
+            text: "(simulated echo response)"

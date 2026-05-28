@@ -11,11 +11,11 @@ A **projection** is a YAML or JSON file that describes how a tool should be expo
 | `simulated` | Returns a canned response without calling the real server |
 | `absent` | Hides the tool entirely; calls are rejected |
 
-A **proxy server** (`mcp-proj serve`) wraps an upstream MCP server and applies a set of projections, producing a new MCP server that any client can connect to.
+A **proxy server** (`mcp-proj serve`) wraps one or more upstream MCP servers and applies a set of projections, producing a new MCP server that any client can connect to.
 
 ---
 
-## Setup
+## Installation
 
 ```bash
 git clone <repo>
@@ -25,24 +25,9 @@ npm install
 
 All runbooks below use `npm run dev --` which runs TypeScript directly via `tsx`. After `npm run build` you can replace it with `node dist/cli/index.js`.
 
----
-
-## Phase 0 — Scaffold
-
-Verify the toolchain is working.
-
 ```bash
-# Show CLI help
 npm run dev -- --help
-
-# Run tests
-npm test
-
-# Type-check and compile
-npm run build
 ```
-
-Expected output of `--help`:
 
 ```text
 Usage: mcp-proj [options] [command]
@@ -54,19 +39,23 @@ Options:
   -h, --help      display help for command
 
 Commands:
-  tools                               Interact with a running MCP server
-  registry                            Manage installed MCP server definitions
-  projection                          Run and manage tool projections
-  serve <upstream> <projections-dir>  Start a projection proxy in front of an upstream MCP server
+  tools       Interact with a running MCP server
+  registry    Manage installed MCP server definitions
+  projection  Run and manage tool projections
+  serve       Start a projection proxy in front of an upstream MCP server
+  profile     Inspect and validate profile files
+```
+
+```bash
+npm test        # run all tests
+npm run build   # type-check and compile
 ```
 
 ---
 
-## Phase 1 — MCP Server Runner
+## Connecting to MCP Servers
 
-Connect to any MCP server and inspect or call its tools directly.
-
-A server config is a JSON or YAML file:
+Inspect or call any MCP server directly. A server config is a JSON or YAML file:
 
 ```json
 {
@@ -117,21 +106,15 @@ npm run dev -- tools call examples/echo-server.json add '{"a":3,"b":4}'
 
 ---
 
-## Phase 2 — Local Registry
+## Server Registry
 
 Install server definitions by name so you don't have to pass file paths everywhere.
 The registry is stored at `~/.mcp-projection/registry.json`.
 
-### Install a server
-
 ```bash
 npm run dev -- registry install examples/echo-server.json
 # Installed 'echo-server' (2026-05-28T...)
-```
 
-### List installed servers
-
-```bash
 npm run dev -- registry list
 ```
 
@@ -141,15 +124,12 @@ npm run dev -- registry list
     installed: 2026-05-28T...
 ```
 
-### Use a registry name instead of a file path
+Once installed, use the name anywhere a file path is accepted:
 
 ```bash
-# Same as Phase 1, but using the name from the registry
 npm run dev -- tools list echo-server
 npm run dev -- tools call echo-server add '{"a":10,"b":20}'
 ```
-
-### Remove a server
 
 ```bash
 npm run dev -- registry remove echo-server
@@ -157,9 +137,9 @@ npm run dev -- registry remove echo-server
 
 ---
 
-## Phase 3 — Projection Engine
+## Writing Projections
 
-Define projections as YAML files and run them directly.
+Define projections as YAML files and run them directly — no code needed.
 
 ### Projection file format
 
@@ -228,28 +208,24 @@ npm run dev -- projection list projections/
 ```
 
 ```text
-  add-absent   [absent]    echo-server/add    Hide the add tool from callers
-  add-partial  [partial]   echo-server/add    Add with a fixed first operand of 10
-  echo-simulated [simulated] echo-server/echo  Always returns a canned response ...
-  echo-verbatim  [verbatim]  echo-server/echo  Pass-through alias for the echo tool
+  add-absent     [absent]     echo-server/add    Hide the add tool from callers
+  add-partial    [partial]    echo-server/add    Add with a fixed first operand of 10
+  echo-simulated [simulated]  echo-server/echo   Always returns a canned response ...
+  echo-verbatim  [verbatim]   echo-server/echo   Pass-through alias for the echo tool
 ```
 
 ---
 
-## Phase 4 — Projection Proxy Server
+## Running a Projection Proxy
 
 Wrap an upstream MCP server with a set of projections and expose the result as a new MCP server. Any MCP client connects to the proxy; it never talks to the upstream directly.
 
 The proxy is itself a stdio MCP server, so it can be used anywhere a normal server config is accepted — including as input to `mcp-proj tools list/call`.
 
-### Start a proxy (foreground, stdio)
-
 ```bash
 npm run dev -- serve echo-server examples/proxy-projections/
 # Proxy started: echo-server with 2 projection(s)
 ```
-
-### Use another mcp-proj command as the client
 
 Create a server config that points at the proxy:
 
@@ -266,12 +242,6 @@ Create a server config that points at the proxy:
 npm run dev -- tools list examples/echo-proxy.json
 ```
 
-```text
-  echo
-    Returns the message unchanged
-    ...
-```
-
 ```bash
 # Call echo — proxy intercepts with the simulated projection; real server not called
 npm run dev -- tools call examples/echo-proxy.json echo '{"message":"hello"}'
@@ -281,15 +251,7 @@ npm run dev -- tools call examples/echo-proxy.json echo '{"message":"hello"}'
 [{ "type": "text", "text": "(response from projection, not the real server)" }]
 ```
 
-```bash
-# Compare against raw upstream — add is still there, echo returns the real value
-npm run dev -- tools list examples/echo-server.json
-npm run dev -- tools call examples/echo-server.json echo '{"message":"hello"}'
-```
-
 ### Using a real MCP server
-
-Replace `examples/echo-server.json` with any MCP server config, e.g.:
 
 ```json
 {
@@ -307,11 +269,78 @@ npm run dev -- serve brave-search projections/
 
 ---
 
-## Running tests
+## Composing Multiple Servers with a Profile
+
+A **profile** is a single YAML file that defines a unified tool surface across multiple upstream MCP servers. It replaces the `<upstream> <projections-dir>` pair with a richer declaration: per-server projection sets, a mix of inline projections and file references, and a strategy for resolving tool name collisions.
+
+```yaml
+# profiles/production.yaml
+name: production
+description: "Restricted tool surface for production agents"
+collision: prefix   # error | prefix | first
+
+servers:
+  - upstream: brave-search
+    projections:
+      - file: projections/search-readonly.yaml     # file reference
+      - kind: absent                               # inline projection
+        name: hide-image-search
+        tool: brave_image_search
+
+  - upstream: email-server
+    projections:
+      - kind: absent
+        name: no-delete
+        tool: delete_email
+```
+
+The `collision` field controls what happens when two upstreams expose a tool with the same name:
+
+| Strategy | Behaviour |
+| -------- | --------- |
+| `error` (default) | Refuse to start |
+| `prefix` | Rename conflicting tools as `<server>__<tool>` |
+| `first` | Keep the first server's tool, silently drop the rest |
+
+### Start a profile proxy
 
 ```bash
-npm test          # run once
+npm run dev -- serve --profile profiles/production.yaml
+# Profile proxy started: 'production' — 2 server(s), collision=prefix
+```
+
+### Validate and inspect a profile
+
+```bash
+# Check that all file references resolve and the schema is valid
+npm run dev -- profile validate profiles/production.yaml
+# Profile 'production' is valid.
+#   Servers: 2, Projections: 3, Collision: prefix
+
+# Print the declared tool surface (no live server connections needed)
+npm run dev -- profile list profiles/production.yaml
+```
+
+```text
+Profile: production
+  Restricted tool surface for production agents
+  Collision: prefix
+
+  upstream: brave-search
+    search-readonly    partial  brave_web_search
+    hide-image-search  absent   brave_image_search
+
+  upstream: email-server
+    no-delete  absent  delete_email
+```
+
+---
+
+## Tests
+
+```bash
+npm test            # run once
 npm run test:watch  # watch mode
 ```
 
-25 tests across 5 test files covering the server client, registry store, projection engine (all 4 kinds + param-merge edge cases), and proxy server integration.
+36 tests across 6 test files — server client, registry store, projection engine (all 4 kinds + param-merge edge cases), proxy server integration, and profile loader/resolver/proxy (file refs, inline projections, all three collision strategies).

@@ -171,14 +171,14 @@ collision: prefix        # rewrite conflicting tools as <server>__<tool>
 
 ### Profile tasks
 
-- [ ] `src/profile/schema.ts` — zod schema for `ProfileSchema`; inline projection entries omit `server` and are unioned with a `{ file: string }` reference type
-- [ ] `src/profile/loader.ts` — load a profile file; resolve file-referenced projections; validate the merged result
-- [ ] `src/profile/resolver.ts` — expand a Profile into a flat `Map<serverName, ProjectionSet>`; apply collision strategy
-- [ ] `src/proxy/server.ts` — extend `createProxyServer` / `serveStdio` to accept a Profile in addition to a single upstream + projection set
-- [ ] `mcp-proj profile validate <profile-file>` — parse, resolve all file refs, report errors
-- [ ] `mcp-proj profile list <profile-file>` — print the effective tool surface (server → tool → kind)
-- [ ] `mcp-proj serve --profile <profile-file>` — start the proxy using a Profile
-- [ ] Unit tests: file refs resolved correctly; inline projections parsed; collision strategies enforced
+- [x] `src/profile/schema.ts` — zod schema for `ProfileSchema`; inline projection entries omit `server` and are unioned with a `{ file: string }` reference type
+- [x] `src/profile/loader.ts` — load a profile file; resolve file-referenced projections; validate the merged result
+- [x] `src/profile/resolver.ts` — expand a Profile into a flat `Map<serverName, ProjectionSet>`; apply collision strategy
+- [x] `src/proxy/server.ts` — extend `createProxyServer` / `serveStdio` to accept a Profile in addition to a single upstream + projection set
+- [x] `mcp-proj profile validate <profile-file>` — parse, resolve all file refs, report errors
+- [x] `mcp-proj profile list <profile-file>` — print the effective tool surface (server → tool → kind)
+- [x] `mcp-proj serve --profile <profile-file>` — start the proxy using a Profile
+- [x] Unit tests: file refs resolved correctly; inline projections parsed; collision strategies enforced
 
 **Exit criterion**: `mcp-proj serve --profile profiles/production.yaml` starts a proxy that hides and scopes tools from multiple upstream servers, described entirely in one file.
 
@@ -255,6 +255,53 @@ resultResolver:
 - [ ] Log fields: `timestamp, projectionName, kind, server, tool, params, response, durationMs`
 - [ ] `mcp audit tail` — stream recent entries
 - [ ] Add `readonly: true` flag to partial projections (block params that aren't in the whitelist)
+
+---
+
+## Phase 9 — Projection Profile Authoring Tool (Web UI)
+
+**Deliverable**: a browser-based editor for creating and editing profile YAML files, with live preview of the effective tool surface and export to file.
+
+### Motivation
+
+Authoring profiles by hand — especially with multi-server collision strategies and a mix of inline and file-referenced projections — is error-prone. A visual editor reduces the feedback loop: see the merged tool surface update in real time as projections are added or removed.
+
+### Core features
+
+- **Server browser** — connect to any registered upstream (or paste a config inline); browse its `tools/list` in a sidebar
+- **Projection builder** — click a tool to create a projection for it; pick the kind from a dropdown; fill in params/response via a form; preview the resulting YAML
+- **Profile canvas** — drag servers into the profile; reorder or remove them; set the collision strategy; see conflicts highlighted
+- **Live diff view** — side-by-side: raw upstream tool list vs. projected tool list (absent tools crossed out, partial tools annotated with pre-filled params)
+- **Export** — download the profile as a YAML file; optionally copy individual projection files
+
+### Architecture sketch
+
+```text
+Browser (React + Vite)
+  │
+  ├── ProfileEditor         ← drag-and-drop canvas, collision picker
+  ├── ServerBrowser         ← calls /api/tools/list for a given server config
+  ├── ProjectionForm        ← kind-specific form, YAML preview pane
+  └── DiffView              ← upstream list vs. projected list
+
+  └── /api (Express, same process as the dev server)
+        ├── GET  /tools/list?upstream=<name>   ← calls MCP server, returns ToolInfo[]
+        └── POST /profile/validate             ← runs loadProfile + resolveProfile
+```
+
+### Implementation tasks
+
+- [ ] `src/ui/server.ts` — lightweight Express API server: `GET /tools/list`, `POST /profile/validate`
+- [ ] `src/ui/app/` — React + Vite front-end (separate `vite.config.ts`, proxies `/api` to Express)
+- [ ] `ProfileEditor` component — canvas with server slots and collision strategy selector
+- [ ] `ServerBrowser` component — live tool list from upstream; click-to-project
+- [ ] `ProjectionForm` component — kind selector, param editor, YAML preview
+- [ ] `DiffView` component — before/after tool list with change annotations
+- [ ] `mcp-proj ui` CLI command — launches the Express + Vite dev server, opens browser
+- [ ] `npm run build:ui` — compiles the front-end into `dist/ui/`; the Express server serves it statically in production
+- [ ] Tests: API routes (mock MCP client); React component snapshots for ProjectionForm and DiffView
+
+**Exit criterion**: `mcp-proj ui` opens a browser where a user can point at two upstream servers, build a profile with projections, see conflicts flagged, and download a valid `profile.yaml`.
 
 ---
 
