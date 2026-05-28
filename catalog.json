@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "servers": [
+    {
+      "name": "brave-search",
+      "description": "Web search using the Brave Search API",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-brave-search"],
+      "env": { "BRAVE_API_KEY": "" },
+      "tags": ["search", "web"],
+      "homepage": "https://github.com/modelcontextprotocol/servers/tree/main/src/brave-search"
+    },
+    {
+      "name": "filesystem",
+      "description": "Read and write files on the local filesystem",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/tmp"],
+      "tags": ["files", "local"],
+      "homepage": "https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem"
+    },
+    {
+      "name": "github",
+      "description": "Interact with GitHub repositories, issues, and pull requests",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": { "GITHUB_PERSONAL_ACCESS_TOKEN": "" },
+      "tags": ["git", "github", "code"],
+      "homepage": "https://github.com/modelcontextprotocol/servers/tree/main/src/github"
+    },
+    {
+      "name": "postgres",
+      "description": "Read-only access to a PostgreSQL database",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-postgres"],
+      "env": { "POSTGRES_CONNECTION_STRING": "" },
+      "tags": ["database", "sql"],
+      "homepage": "https://github.com/modelcontextprotocol/servers/tree/main/src/postgres"
+    },
+    {
+      "name": "slack",
+      "description": "Send messages and interact with Slack workspaces",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-slack"],
+      "env": { "SLACK_BOT_TOKEN": "", "SLACK_TEAM_ID": "" },
+      "tags": ["messaging", "slack"],
+      "homepage": "https://github.com/modelcontextprotocol/servers/tree/main/src/slack"
+    },
+    {
+      "name": "echo-server",
+      "description": "Simple echo and add server for testing projections",
+      "command": "npx",
+      "args": ["tsx", "examples/echo-server.ts"],
+      "tags": ["testing", "example"]
+    }
+  ]
+}

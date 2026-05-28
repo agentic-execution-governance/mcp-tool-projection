@@ -23,6 +23,8 @@ export const PartialProjectionSchema = z.object({
   // When present, receives caller params and returns the final merged param object.
   // Resolver output replaces the static params merge entirely.
   paramResolver: ParamResolverSchema.optional(),
+  // When true, the caller may not supply any params not listed in `params`.
+  readonly: z.boolean().default(false),
 });
 
 export const SimulatedProjectionSchema = z

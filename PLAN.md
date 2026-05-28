@@ -238,10 +238,10 @@ resultResolver:
 
 **Deliverable**: browse and install MCP server definitions from `https://github.com/mcp`.
 
-- [ ] `src/catalog/client.ts` — fetch server definitions from the GitHub registry (REST API or raw file fetch)
-- [ ] `mcp catalog search <query>` — find servers by name/keyword
-- [ ] `mcp catalog install <name>` — fetch definition, add to local registry
-- [ ] Cache catalog index locally (TTL: 1 hour)
+- [x] `src/catalog/client.ts` — fetch server definitions from the GitHub registry (REST API or raw file fetch)
+- [x] `mcp catalog search <query>` — find servers by name/keyword
+- [x] `mcp catalog install <name>` — fetch definition, add to local registry
+- [x] Cache catalog index locally (TTL: 1 hour)
 
 **Exit criterion**: `mcp catalog install brave-search && mcp projection run projections/search-readonly.yaml` works from scratch.
 
@@ -251,10 +251,10 @@ resultResolver:
 
 **Deliverable**: every tool call (real or simulated) is logged with metadata.
 
-- [ ] Audit log: append-only JSONL at `~/.mcp-projection/audit.log`
-- [ ] Log fields: `timestamp, projectionName, kind, server, tool, params, response, durationMs`
-- [ ] `mcp audit tail` — stream recent entries
-- [ ] Add `readonly: true` flag to partial projections (block params that aren't in the whitelist)
+- [x] Audit log: append-only JSONL at `~/.mcp-projection/audit.log`
+- [x] Log fields: `timestamp, projectionName, kind, server, tool, params, response, durationMs`
+- [x] `mcp audit tail` — stream recent entries
+- [x] Add `readonly: true` flag to partial projections (block params that aren't in the whitelist)
 
 ---
 
@@ -291,15 +291,15 @@ Browser (React + Vite)
 
 ### Implementation tasks
 
-- [ ] `src/ui/server.ts` — lightweight Express API server: `GET /tools/list`, `POST /profile/validate`
-- [ ] `src/ui/app/` — React + Vite front-end (separate `vite.config.ts`, proxies `/api` to Express)
-- [ ] `ProfileEditor` component — canvas with server slots and collision strategy selector
-- [ ] `ServerBrowser` component — live tool list from upstream; click-to-project
-- [ ] `ProjectionForm` component — kind selector, param editor, YAML preview
-- [ ] `DiffView` component — before/after tool list with change annotations
-- [ ] `mcp-proj ui` CLI command — launches the Express + Vite dev server, opens browser
-- [ ] `npm run build:ui` — compiles the front-end into `dist/ui/`; the Express server serves it statically in production
-- [ ] Tests: API routes (mock MCP client); React component snapshots for ProjectionForm and DiffView
+- [x] `src/ui/server.ts` — lightweight Express API server: `GET /tools/list`, `POST /profile/validate`
+- [x] `src/ui/app/` — React + Vite front-end (separate `vite.config.ts`, proxies `/api` to Express)
+- [x] `ProfileEditor` component — canvas with server slots and collision strategy selector
+- [x] `ServerBrowser` component — live tool list from upstream; click-to-project
+- [x] `ProjectionForm` component — kind selector, param editor, YAML preview
+- [x] `DiffView` component — before/after tool list with change annotations
+- [x] `mcp-proj ui` CLI command — launches the Express + Vite dev server, opens browser
+- [x] `npm run build:ui` — compiles the front-end into `dist/ui/`; the Express server serves it statically in production
+- [x] Tests: API routes (mock MCP client); React component snapshots for ProjectionForm and DiffView
 
 **Exit criterion**: `mcp-proj ui` opens a browser where a user can point at two upstream servers, build a profile with projections, see conflicts flagged, and download a valid `profile.yaml`.
 

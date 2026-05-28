@@ -5,6 +5,9 @@ import { registryCommand } from "../registry/commands.js";
 import { projectionCommand } from "../projection/commands.js";
 import { serveCommand } from "../proxy/commands.js";
 import { profileCommand } from "../profile/commands.js";
+import { catalogCommand } from "../catalog/commands.js";
+import { auditCommand } from "../audit/commands.js";
+import { uiCommand } from "../ui/commands.js";
 
 program
   .name("mcp-proj")
@@ -16,6 +19,8 @@ program.addCommand(registryCommand);
 program.addCommand(projectionCommand);
 program.addCommand(serveCommand);
 program.addCommand(profileCommand);
-// program.addCommand(catalogCommand)    // Phase 7
+program.addCommand(catalogCommand);
+program.addCommand(auditCommand);
+program.addCommand(uiCommand);
 
 program.parse();

@@ -1,0 +1,61 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0f1117;
+  --surface: #1a1d27;
+  --surface2: #222536;
+  --border: #2e3247;
+  --text: #e2e4f0;
+  --text-dim: #7c82a0;
+  --accent: #6c8ef5;
+  --accent-dim: #3a4a8a;
+  --green: #4caf7d;
+  --amber: #e8a838;
+  --red: #e05c5c;
+  --tag-bg: #1e2540;
+}
+
+body { background: var(--bg); color: var(--text); font-family: system-ui, sans-serif; font-size: 14px; }
+
+button {
+  background: var(--accent-dim); color: var(--text); border: 1px solid var(--accent);
+  border-radius: 4px; padding: 4px 10px; cursor: pointer; font-size: 13px;
+}
+button:hover { background: var(--accent); }
+button.ghost { background: transparent; border-color: var(--border); color: var(--text-dim); }
+button.ghost:hover { background: var(--surface2); color: var(--text); border-color: var(--text-dim); }
+button.danger { border-color: var(--red); }
+button.danger:hover { background: var(--red); }
+button.primary { background: var(--accent); border-color: var(--accent); }
+
+input, select, textarea {
+  background: var(--surface2); color: var(--text); border: 1px solid var(--border);
+  border-radius: 4px; padding: 5px 8px; font-size: 13px; width: 100%;
+}
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); }
+
+label { color: var(--text-dim); font-size: 12px; display: block; margin-bottom: 3px; }
+
+.tag {
+  display: inline-block; background: var(--tag-bg); border: 1px solid var(--border);
+  border-radius: 3px; padding: 1px 6px; font-size: 11px; color: var(--text-dim);
+}
+.tag.partial { border-color: var(--accent); color: var(--accent); }
+.tag.simulated { border-color: var(--amber); color: var(--amber); }
+.tag.absent { border-color: var(--red); color: var(--red); }
+.tag.verbatim { border-color: var(--green); color: var(--green); }
+
+.pill {
+  display: inline-block; border-radius: 999px; padding: 1px 8px; font-size: 11px; font-weight: 600;
+}
+.pill.collision { background: var(--red); color: #fff; }
+
+code { font-family: "Fira Code", monospace; font-size: 12px; background: var(--surface2); padding: 1px 5px; border-radius: 3px; }
+
+pre {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 6px;
+  padding: 12px; font-size: 12px; overflow: auto; white-space: pre-wrap;
+  font-family: "Fira Code", monospace; line-height: 1.6;
+}
+
+.divider { border: none; border-top: 1px solid var(--border); margin: 12px 0; }
