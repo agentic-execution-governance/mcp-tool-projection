@@ -1,9 +1,11 @@
 import { z } from "zod";
 
+const toolName = z.string().regex(/^\S+$/, "Tool name must not contain whitespace");
+
 const inlineBase = {
   name: z.string(),
-  tool: z.string(),
-  projectedName: z.string().optional(),
+  tool: toolName,
+  projectedName: toolName.optional(),
   description: z.string().optional(),
 };
 

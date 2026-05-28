@@ -1,12 +1,15 @@
 import { z } from "zod";
 import { ParamResolverSchema, ResultResolverSchema } from "../resolvers/types.js";
 
+// MCP tool names may not contain whitespace.
+const toolName = z.string().regex(/^\S+$/, "Tool name must not contain whitespace");
+
 const base = {
   name: z.string(),
   server: z.string(),
-  tool: z.string(),
+  tool: toolName,
   // Exposed name in tools/list. Defaults to `tool` when absent.
-  projectedName: z.string().optional(),
+  projectedName: toolName.optional(),
   description: z.string().optional(),
 };
 

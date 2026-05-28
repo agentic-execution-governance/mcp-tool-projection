@@ -91,14 +91,16 @@ async function buildRoutingTable(
     }
   }
 
-  // Detect collisions
-  const seen = new Map<string, string>(); // toolName -> serverName
+  // Collision detection uses the effective exposed name (projectedName ?? toolName),
+  // not the original upstream name — a rename eliminates the conflict.
+  const seen = new Map<string, string>(); // exposedName -> serverName
   const conflicts = new Set<string>();
   for (const { toolName, entry } of candidates) {
-    if (seen.has(toolName)) {
-      conflicts.add(toolName);
+    const exposedName = entry.projection?.projectedName ?? toolName;
+    if (seen.has(exposedName)) {
+      conflicts.add(exposedName);
     } else {
-      seen.set(toolName, entry.upstream.name);
+      seen.set(exposedName, entry.upstream.name);
     }
   }
 
@@ -113,13 +115,12 @@ async function buildRoutingTable(
   const firstSeen = new Set<string>();
 
   for (const { toolName, entry } of candidates) {
-    // projectedName (if set) is the exposed name; collision prefix is prepended on top of it.
     const projectedBase = entry.projection?.projectedName ?? toolName;
 
-    if (conflicts.has(toolName)) {
+    if (conflicts.has(projectedBase)) {
       if (collision === "first") {
-        if (!firstSeen.has(toolName)) {
-          firstSeen.add(toolName);
+        if (!firstSeen.has(projectedBase)) {
+          firstSeen.add(projectedBase);
           table.set(projectedBase, entry);
         }
       } else {

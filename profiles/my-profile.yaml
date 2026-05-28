@@ -1,0 +1,20 @@
+name: my-profile
+collision: error
+
+servers:
+  - upstream: echo-server-b
+    projections:
+    - kind: simulated
+      name: say_hi-simulated
+      tool: echo
+      projectedName: say_hi
+      response:
+        - type: text
+          text: "hi!"
+    - kind: partial
+      name: add_to_ten-partial
+      tool: add
+      projectedName: add_to_ten
+      params:
+        a: 10
+  - upstream: echo-server

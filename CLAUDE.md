@@ -67,3 +67,7 @@ TypeScript (Node.js). The MCP SDK (`@modelcontextprotocol/sdk`) is the canonical
 - Projection definition schema is validated with `zod` at load time.
 - No per-projection code — if a projection requires custom code, the design is wrong.
 - Prefer explicit errors over silent fallbacks; projections must declare their kind explicitly.
+
+## Shell conventions
+
+- When using `pkill -f`, always bracket the first character of the pattern: `pkill -f "[m]odelcontextprotocol/inspector"`. This prevents the `pkill` process from matching its own command line.
