@@ -66,16 +66,17 @@ describe("verbatim", () => {
 });
 
 describe("partial", () => {
-  it("uses definition params as defaults", async () => {
+  it("merges caller free params with fixed projection params", async () => {
     const p: Projection = { ...base, kind: "partial", params: { a: 10 } };
     await runProjection(p, { b: 5 });
     expect(mockCallTool).toHaveBeenCalledWith(expect.anything(), "echo", { a: 10, b: 5 });
   });
 
-  it("caller params override definition params", async () => {
+  it("projection params are fixed — caller cannot override them", async () => {
     const p: Projection = { ...base, kind: "partial", params: { a: 10, b: 1 } };
     await runProjection(p, { b: 99 });
-    expect(mockCallTool).toHaveBeenCalledWith(expect.anything(), "echo", { a: 10, b: 99 });
+    // b is fixed at 1; caller's b: 99 is ignored
+    expect(mockCallTool).toHaveBeenCalledWith(expect.anything(), "echo", { a: 10, b: 1 });
   });
 
   it("works with no caller params", async () => {

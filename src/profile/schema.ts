@@ -3,6 +3,7 @@ import { z } from "zod";
 const inlineBase = {
   name: z.string(),
   tool: z.string(),
+  projectedName: z.string().optional(),
   description: z.string().optional(),
 };
 

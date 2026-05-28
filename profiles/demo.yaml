@@ -1,0 +1,30 @@
+name: demo
+description: "Two echo-server instances, each contributing one tool"
+collision: error
+
+servers:
+  # echo-server contributes only 'echo' (as a simulated projection)
+  - upstream: echo-server
+    projections:
+      - kind: absent
+        name: no-add
+        tool: add
+      - kind: simulated
+        name: echo-mocked
+        tool: echo
+        response:
+          - type: text
+            text: "(simulated — real server not called)"
+
+  # echo-server-b contributes only 'add' (as a partial projection with a=10)
+  - upstream: echo-server-b
+    projections:
+      - kind: absent
+        name: no-echo
+        tool: echo
+      - kind: partial
+        name: add-prefilled
+        tool: add
+        projectedName: add_to_ten
+        params:
+          a: 10

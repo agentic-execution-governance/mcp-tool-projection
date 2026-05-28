@@ -5,6 +5,8 @@ const base = {
   name: z.string(),
   server: z.string(),
   tool: z.string(),
+  // Exposed name in tools/list. Defaults to `tool` when absent.
+  projectedName: z.string().optional(),
   description: z.string().optional(),
 };
 

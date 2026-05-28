@@ -3,7 +3,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { ListToolsRequestSchema, CallToolRequestSchema } from "@modelcontextprotocol/sdk/types.js";
 import type { Transport } from "@modelcontextprotocol/sdk/shared/transport.js";
 import type { ServerConfig } from "../server/config.js";
-import { proxyListTools, proxyCallTool, type ProjectionSet } from "./router.js";
+import { proxyListTools, proxyCallTool, applyProjectionToTool, type ProjectionSet } from "./router.js";
 import { listTools } from "../server/client.js";
 import { runProjection, AbsentToolError } from "../projection/engine.js";
 import { callTool } from "../server/client.js";
@@ -113,19 +113,22 @@ async function buildRoutingTable(
   const firstSeen = new Set<string>();
 
   for (const { toolName, entry } of candidates) {
+    // projectedName (if set) is the exposed name; collision prefix is prepended on top of it.
+    const projectedBase = entry.projection?.projectedName ?? toolName;
+
     if (conflicts.has(toolName)) {
       if (collision === "first") {
         if (!firstSeen.has(toolName)) {
           firstSeen.add(toolName);
-          table.set(toolName, entry);
+          table.set(projectedBase, entry);
         }
       } else {
         // prefix
-        const prefixedName = `${entry.upstream.name}__${toolName}`;
+        const prefixedName = `${entry.upstream.name}__${projectedBase}`;
         table.set(prefixedName, entry);
       }
     } else {
-      table.set(toolName, entry);
+      table.set(projectedBase, entry);
     }
   }
 
@@ -154,11 +157,12 @@ export async function createProfileProxyServer(
   );
 
   server.setRequestHandler(ListToolsRequestSchema, async () => {
-    const tools = [...routingTable.entries()].map(([exposedName, route]) => ({
-      name: exposedName,
-      description: route.toolInfo.description,
-      inputSchema: route.toolInfo.inputSchema,
-    }));
+    const tools = [...routingTable.entries()].map(([exposedName, route]) => {
+      const applied = route.projection
+        ? applyProjectionToTool(route.toolInfo, route.projection)
+        : route.toolInfo;
+      return { name: exposedName, description: applied.description, inputSchema: applied.inputSchema };
+    });
     return { tools };
   });
 

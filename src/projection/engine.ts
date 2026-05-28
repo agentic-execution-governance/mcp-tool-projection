@@ -55,8 +55,8 @@ export async function runProjection(
         // Resolver receives caller params and returns the final param object.
         merged = await runParamResolver(projection.paramResolver, callerParams);
       } else {
-        // Definition params are defaults; caller params take precedence.
-        merged = { ...projection.params, ...callerParams };
+        // Partial application: caller supplies the free params; projection params are fixed.
+        merged = { ...callerParams, ...projection.params };
       }
       return callTool(config, projection.tool, merged);
     }
