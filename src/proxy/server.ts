@@ -132,10 +132,7 @@ async function buildRoutingTable(
   return table;
 }
 
-async function routeCall(
-  route: RouteEntry,
-  callerParams: Record<string, unknown>,
-) {
+async function routeCall(route: RouteEntry, callerParams: Record<string, unknown>) {
   const { upstream, projection, originalName } = route;
   if (projection) {
     if (projection.kind === "absent") throw new AbsentToolError(projection.name, originalName);

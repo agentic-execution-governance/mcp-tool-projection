@@ -198,7 +198,13 @@ describe("createProfileProxyServer — single server", () => {
 
   it("merges partial params on call", async () => {
     const projections: Projection[] = [
-      { name: "echo-partial", kind: "partial", server: "server-a", tool: "echo", params: { prefix: "hi" } },
+      {
+        name: "echo-partial",
+        kind: "partial",
+        server: "server-a",
+        tool: "echo",
+        params: { prefix: "hi" },
+      },
     ];
     const { client, cleanup } = await makeProfileClient([slot("server-a", projections)]);
     await client.callTool({ name: "echo", arguments: { message: "there" } });
@@ -219,9 +225,9 @@ describe("createProfileProxyServer — collision strategies", () => {
   });
 
   it("collision=error throws at startup", async () => {
-    await expect(
-      makeProfileClient([slot("server-a"), slot("server-b")], "error"),
-    ).rejects.toThrow("collision");
+    await expect(makeProfileClient([slot("server-a"), slot("server-b")], "error")).rejects.toThrow(
+      "collision",
+    );
   });
 
   it("collision=first keeps the first server's tool", async () => {
