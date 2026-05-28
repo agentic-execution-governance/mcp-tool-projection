@@ -1,0 +1,8 @@
+name: echo-fixed
+kind: simulated
+server: echo-server
+tool: echo
+description: "Always returns a fixed response, no upstream call"
+response:
+  - type: text
+    text: "(response from projection, not the real server)"
