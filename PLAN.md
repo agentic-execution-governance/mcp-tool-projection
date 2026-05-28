@@ -107,10 +107,10 @@ params:
 
 ### Tasks
 
-- [ ] `src/proxy/server.ts` — MCP server that wraps an upstream; applies a projection set at startup
-- [ ] `src/proxy/router.ts` — for each incoming `tools/call`, look up the matching projection and delegate to `runProjection()`; fall through to raw upstream call if no projection matches
-- [ ] `mcp-proj serve <upstream-name-or-file> <projections-dir>` CLI command — launches the proxy on stdio (drop-in replacement for the upstream)
-- [ ] Integration test: proxy started in-process via `InMemoryTransport`; verify absent tools are hidden and partial params are merged
+- [x] `src/proxy/server.ts` — MCP server that wraps an upstream; applies a projection set at startup
+- [x] `src/proxy/router.ts` — for each incoming `tools/call`, look up the matching projection and delegate to `runProjection()`; fall through to raw upstream call if no projection matches
+- [x] `mcp-proj serve <upstream-name-or-file> <projections-dir>` CLI command — launches the proxy on stdio (drop-in replacement for the upstream)
+- [x] Integration test: proxy started in-process via `InMemoryTransport`; verify absent tools are hidden and partial params are merged
 
 **Exit criterion**: `mcp-proj serve echo-server projections/` can be used as an MCP server where `add` is absent and `add-partial` is exposed with pre-filled `a`.
 
