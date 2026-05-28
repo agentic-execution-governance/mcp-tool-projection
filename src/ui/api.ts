@@ -72,13 +72,25 @@ export function createApiApp() {
       servers: parsed.data.servers.map((s) => ({
         upstream: s.upstream,
         projections: s.projections.map((p): Projection => {
-          const base = { name: p.projectedName ?? p.tool, server: s.upstream, tool: p.tool, projectedName: p.projectedName };
+          const base = {
+            name: p.projectedName ?? p.tool,
+            server: s.upstream,
+            tool: p.tool,
+            projectedName: p.projectedName,
+          };
           if (p.kind === "absent") return { ...base, kind: "absent" };
           if (p.kind === "verbatim") return { ...base, kind: "verbatim" };
-          if (p.kind === "partial") return { ...base, kind: "partial", params: p.params ?? {}, readonly: false };
+          if (p.kind === "partial")
+            return { ...base, kind: "partial", params: p.params ?? {}, readonly: false };
           // simulated
           let response: unknown[] = [{ type: "text", text: "(simulated)" }];
-          if (p.response) { try { response = JSON.parse(p.response) as unknown[]; } catch { /* keep default */ } }
+          if (p.response) {
+            try {
+              response = JSON.parse(p.response) as unknown[];
+            } catch {
+              /* keep default */
+            }
+          }
           return { ...base, kind: "simulated", response };
         }),
       })),
@@ -88,7 +100,14 @@ export function createApiApp() {
       const collision = resolvedProfile.collision;
       const slots = resolveProfile(resolvedProfile);
 
-      type Candidate = { server: string; tool: string; exposedName: string; kind: string; fixedParams?: Record<string, unknown>; projectedName?: string };
+      type Candidate = {
+        server: string;
+        tool: string;
+        exposedName: string;
+        kind: string;
+        fixedParams?: Record<string, unknown>;
+        projectedName?: string;
+      };
       const candidates: Candidate[] = [];
 
       for (const slot of slots) {
@@ -102,7 +121,10 @@ export function createApiApp() {
             tool: tool.name,
             exposedName: applied.name,
             kind: proj?.kind ?? "verbatim",
-            fixedParams: proj?.kind === "partial" && Object.keys(proj.params).length ? (proj.params as Record<string, unknown>) : undefined,
+            fixedParams:
+              proj?.kind === "partial" && Object.keys(proj.params).length
+                ? (proj.params as Record<string, unknown>)
+                : undefined,
             projectedName: proj?.projectedName,
           });
         }

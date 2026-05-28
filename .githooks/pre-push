@@ -1,0 +1,3 @@
+#!/bin/sh
+# Runs before every git push. Aborts if Prettier finds formatting issues.
+npm run format:check

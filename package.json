@@ -7,6 +7,7 @@
     "mcp-proj": "./dist/cli/index.js"
   },
   "scripts": {
+    "prepare": "git config core.hooksPath .githooks",
     "build": "tsc && npm run build:ui",
     "build:ts": "tsc",
     "build:ui": "vite build",

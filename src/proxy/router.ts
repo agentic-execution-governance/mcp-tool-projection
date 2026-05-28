@@ -31,7 +31,11 @@ export function applyProjectionToTool(tool: ToolInfo, proj: Projection): ToolInf
   const name = proj.projectedName ?? tool.name;
 
   if (proj.kind === "partial" && Object.keys(proj.params).length > 0) {
-    return { ...tool, name, inputSchema: stripFixedParams(tool.inputSchema, Object.keys(proj.params)) };
+    return {
+      ...tool,
+      name,
+      inputSchema: stripFixedParams(tool.inputSchema, Object.keys(proj.params)),
+    };
   }
 
   return { ...tool, name };

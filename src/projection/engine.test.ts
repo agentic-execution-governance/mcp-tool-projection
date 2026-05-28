@@ -102,15 +102,12 @@ describe("partial with paramResolver", () => {
       paramResolver: { type: "inline-js", script: "(p) => p" },
     };
     await runProjection(p, { user: "alice" });
-    expect(mockParamResolver).toHaveBeenCalledWith(
-      expect.objectContaining({ type: "inline-js" }),
-      { user: "alice" },
-    );
-    expect(mockCallTool).toHaveBeenCalledWith(
-      expect.anything(),
-      "echo",
-      { recipient: "alice@example.com" },
-    );
+    expect(mockParamResolver).toHaveBeenCalledWith(expect.objectContaining({ type: "inline-js" }), {
+      user: "alice",
+    });
+    expect(mockCallTool).toHaveBeenCalledWith(expect.anything(), "echo", {
+      recipient: "alice@example.com",
+    });
   });
 
   it("falls back to static params merge when no resolver", async () => {

@@ -19,9 +19,7 @@ export class AbsentToolError extends Error {
 
 export class ReadonlyViolationError extends Error {
   constructor(projection: string, extra: string[]) {
-    super(
-      `Projection '${projection}' is readonly. Unexpected params: ${extra.join(", ")}`,
-    );
+    super(`Projection '${projection}' is readonly. Unexpected params: ${extra.join(", ")}`);
     this.name = "ReadonlyViolationError";
   }
 }
@@ -85,7 +83,9 @@ async function execute(
     case "partial": {
       if (projection.readonly) {
         const fixed = Object.keys(projection.params);
-        const extra = Object.keys(callerParams).filter((k) => !fixed.includes(k) === false && !fixed.includes(k));
+        const extra = Object.keys(callerParams).filter(
+          (k) => !fixed.includes(k) === false && !fixed.includes(k),
+        );
         // readonly: caller may only supply params NOT already in projection.params
         const disallowed = Object.keys(callerParams).filter((k) => fixed.includes(k));
         if (disallowed.length > 0) {

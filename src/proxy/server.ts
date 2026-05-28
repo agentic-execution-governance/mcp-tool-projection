@@ -3,7 +3,12 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { ListToolsRequestSchema, CallToolRequestSchema } from "@modelcontextprotocol/sdk/types.js";
 import type { Transport } from "@modelcontextprotocol/sdk/shared/transport.js";
 import type { ServerConfig } from "../server/config.js";
-import { proxyListTools, proxyCallTool, applyProjectionToTool, type ProjectionSet } from "./router.js";
+import {
+  proxyListTools,
+  proxyCallTool,
+  applyProjectionToTool,
+  type ProjectionSet,
+} from "./router.js";
 import { listTools } from "../server/client.js";
 import { runProjection, AbsentToolError } from "../projection/engine.js";
 import { callTool } from "../server/client.js";
@@ -162,7 +167,11 @@ export async function createProfileProxyServer(
       const applied = route.projection
         ? applyProjectionToTool(route.toolInfo, route.projection)
         : route.toolInfo;
-      return { name: exposedName, description: applied.description, inputSchema: applied.inputSchema };
+      return {
+        name: exposedName,
+        description: applied.description,
+        inputSchema: applied.inputSchema,
+      };
     });
     return { tools };
   });

@@ -16,7 +16,10 @@ function tmpScript(content: string): string {
 describe("runParamResolver — inline-js", () => {
   it("transforms params with a sync arrow function", async () => {
     const result = await runParamResolver(
-      { type: "inline-js", script: "({ user, ...rest }) => ({ ...rest, recipient: user + '@example.com' })" },
+      {
+        type: "inline-js",
+        script: "({ user, ...rest }) => ({ ...rest, recipient: user + '@example.com' })",
+      },
       { user: "alice", subject: "hello" },
     );
     expect(result).toEqual({ recipient: "alice@example.com", subject: "hello" });
@@ -31,9 +34,9 @@ describe("runParamResolver — inline-js", () => {
   });
 
   it("throws when resolver returns an array instead of an object", async () => {
-    await expect(
-      runParamResolver({ type: "inline-js", script: "(p) => [p]" }, {}),
-    ).rejects.toThrow("plain object");
+    await expect(runParamResolver({ type: "inline-js", script: "(p) => [p]" }, {})).rejects.toThrow(
+      "plain object",
+    );
   });
 });
 
@@ -47,9 +50,7 @@ describe("runParamResolver — script-file", () => {
   });
 
   it("supports async default exports", async () => {
-    const path = tmpScript(
-      `export default async (p) => ({ resolved: true, ...p });`,
-    );
+    const path = tmpScript(`export default async (p) => ({ resolved: true, ...p });`);
     const result = await runParamResolver({ type: "script-file", path }, { a: 1 });
     expect(result).toEqual({ resolved: true, a: 1 });
   });

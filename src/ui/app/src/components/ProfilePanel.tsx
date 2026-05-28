@@ -19,7 +19,9 @@ function kindToUi(proj: ProjectionDraft | undefined): UiKind {
   return "—";
 }
 
-function makeId() { return Math.random().toString(36).slice(2); }
+function makeId() {
+  return Math.random().toString(36).slice(2);
+}
 
 function schemaParams(schema: object): string[] {
   const s = schema as Record<string, unknown>;
@@ -40,15 +42,28 @@ function ToolRow({
 }) {
   const uiKind = kindToUi(projection);
   const params = schemaParams(tool.inputSchema);
-  const fixedParams: Record<string, string> = projection?.kind === "partial" ? (projection.params ?? {}) as Record<string, string> : {};
+  const fixedParams: Record<string, string> =
+    projection?.kind === "partial" ? ((projection.params ?? {}) as Record<string, string>) : {};
 
   function setKind(k: UiKind) {
-    if (k === "—") { onChange(null); return; }
-    const base = { id: projection?.id ?? makeId(), tool: tool.name, projectedName: projection?.projectedName };
+    if (k === "—") {
+      onChange(null);
+      return;
+    }
+    const base = {
+      id: projection?.id ?? makeId(),
+      tool: tool.name,
+      projectedName: projection?.projectedName,
+    };
     if (k === "hidden") onChange({ ...base, kind: "absent", projectedName: undefined });
     else if (k === "verbatim") onChange({ ...base, kind: "verbatim" });
     else if (k === "partial") onChange({ ...base, kind: "partial", params: fixedParams });
-    else if (k === "simulated") onChange({ ...base, kind: "simulated", response: projection?.response ?? '[{"type":"text","text":""}]' });
+    else if (k === "simulated")
+      onChange({
+        ...base,
+        kind: "simulated",
+        response: projection?.response ?? '[{"type":"text","text":""}]',
+      });
   }
 
   function setProjectedName(v: string) {
@@ -58,7 +73,7 @@ function ToolRow({
 
   function toggleParam(key: string, fixed: boolean, value: string) {
     if (!projection || projection.kind !== "partial") return;
-    const next = { ...(projection.params ?? {}) as Record<string, string> };
+    const next = { ...((projection.params ?? {}) as Record<string, string>) };
     if (fixed) next[key] = value;
     else delete next[key];
     onChange({ ...projection, params: next });
@@ -74,17 +89,43 @@ function ToolRow({
     onChange({ ...projection, response: v });
   }
 
-  const rowBg = uiKind === "hidden" ? "#1a1010" : uiKind === "—" ? "transparent" : "var(--surface2)";
+  const rowBg =
+    uiKind === "hidden" ? "#1a1010" : uiKind === "—" ? "transparent" : "var(--surface2)";
   const textColor = uiKind === "hidden" ? "var(--text-dim)" : "var(--text)";
 
   return (
-    <div style={{ borderRadius: 5, border: `1px solid ${uiKind === "hidden" ? "var(--border)" : uiKind === "—" ? "transparent" : "var(--border)"}`, background: rowBg, padding: "6px 10px", display: "flex", flexDirection: "column", gap: 6 }}>
+    <div
+      style={{
+        borderRadius: 5,
+        border: `1px solid ${uiKind === "hidden" ? "var(--border)" : uiKind === "—" ? "transparent" : "var(--border)"}`,
+        background: rowBg,
+        padding: "6px 10px",
+        display: "flex",
+        flexDirection: "column",
+        gap: 6,
+      }}
+    >
       {/* Top row: tool name + kind selector */}
       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-        <code style={{ minWidth: 100, color: textColor, textDecoration: uiKind === "hidden" ? "line-through" : "none" }}>
+        <code
+          style={{
+            minWidth: 100,
+            color: textColor,
+            textDecoration: uiKind === "hidden" ? "line-through" : "none",
+          }}
+        >
           {tool.name}
         </code>
-        <span style={{ color: "var(--text-dim)", fontSize: 11, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+        <span
+          style={{
+            color: "var(--text-dim)",
+            fontSize: 11,
+            flex: 1,
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+          }}
+        >
           {tool.description}
         </span>
         <select
@@ -125,7 +166,9 @@ function ToolRow({
                   onChange={(e) => toggleParam(key, e.target.checked, fixedParams[key] ?? "")}
                   style={{ width: "auto", accentColor: "var(--accent)", cursor: "pointer" }}
                 />
-                <code style={{ minWidth: 72, color: isFixed ? "var(--text)" : "var(--text-dim)" }}>{key}</code>
+                <code style={{ minWidth: 72, color: isFixed ? "var(--text)" : "var(--text-dim)" }}>
+                  {key}
+                </code>
                 {isFixed ? (
                   <input
                     value={fixedParams[key] ?? ""}
@@ -134,7 +177,9 @@ function ToolRow({
                     style={{ flex: 1, fontSize: 12 }}
                   />
                 ) : (
-                  <span style={{ fontSize: 11, color: "var(--text-dim)", fontStyle: "italic" }}>caller supplies this</span>
+                  <span style={{ fontSize: 11, color: "var(--text-dim)", fontStyle: "italic" }}>
+                    caller supplies this
+                  </span>
                 )}
               </div>
             );
@@ -155,13 +200,18 @@ function ToolRow({
 }
 
 export function ProfilePanel({ draft, onChange }: Props) {
-  const [serverTools, setServerTools] = useState<Record<string, ToolInfo[] | "loading" | "error">>({});
+  const [serverTools, setServerTools] = useState<Record<string, ToolInfo[] | "loading" | "error">>(
+    {},
+  );
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
 
   function toggleExpand(name: string) {
     setExpanded((s) => {
       const next = new Set(s);
-      if (next.has(name)) { next.delete(name); return next; }
+      if (next.has(name)) {
+        next.delete(name);
+        return next;
+      }
       next.add(name);
       if (!serverTools[name]) {
         setServerTools((t) => ({ ...t, [name]: "loading" }));
@@ -186,16 +236,23 @@ export function ProfilePanel({ draft, onChange }: Props) {
       ...draft,
       servers: draft.servers.map((s) => {
         if (s.upstream !== serverName) return s;
-        const without = s.projections.filter((p) => p.tool !== (proj?.tool ?? p.tool) || (proj !== null && p.tool !== proj.tool));
+        const without = s.projections.filter(
+          (p) => p.tool !== (proj?.tool ?? p.tool) || (proj !== null && p.tool !== proj.tool),
+        );
         if (proj === null) {
           // Remove projection for this tool
-          return { ...s, projections: s.projections.filter((p) => p.tool !== (s.projections.find(() => true)?.tool)) };
+          return {
+            ...s,
+            projections: s.projections.filter(
+              (p) => p.tool !== s.projections.find(() => true)?.tool,
+            ),
+          };
         }
         const exists = s.projections.find((p) => p.tool === proj.tool);
         return {
           ...s,
           projections: exists
-            ? s.projections.map((p) => p.tool === proj.tool ? proj : p)
+            ? s.projections.map((p) => (p.tool === proj.tool ? proj : p))
             : [...s.projections, proj],
         };
       }),
@@ -214,7 +271,11 @@ export function ProfilePanel({ draft, onChange }: Props) {
     });
   }
 
-  function handleToolProjectionChange(serverName: string, toolName: string, proj: ProjectionDraft | null) {
+  function handleToolProjectionChange(
+    serverName: string,
+    toolName: string,
+    proj: ProjectionDraft | null,
+  ) {
     if (proj === null) {
       removeProjection(serverName, toolName);
     } else {
@@ -226,7 +287,7 @@ export function ProfilePanel({ draft, onChange }: Props) {
           return {
             ...s,
             projections: exists
-              ? s.projections.map((p) => p.tool === toolName ? proj : p)
+              ? s.projections.map((p) => (p.tool === toolName ? proj : p))
               : [...s.projections, proj],
           };
         }),
@@ -237,15 +298,34 @@ export function ProfilePanel({ draft, onChange }: Props) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       {/* Profile meta */}
-      <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 6, padding: 12, display: "flex", flexDirection: "column", gap: 8 }}>
+      <div
+        style={{
+          background: "var(--surface)",
+          border: "1px solid var(--border)",
+          borderRadius: 6,
+          padding: 12,
+          display: "flex",
+          flexDirection: "column",
+          gap: 8,
+        }}
+      >
         <div style={{ display: "flex", gap: 8 }}>
           <div style={{ flex: 2 }}>
             <label>Profile name</label>
-            <input value={draft.name} onChange={(e) => updateMeta({ name: e.target.value })} placeholder="my-profile" />
+            <input
+              value={draft.name}
+              onChange={(e) => updateMeta({ name: e.target.value })}
+              placeholder="my-profile"
+            />
           </div>
           <div style={{ flex: 1 }}>
             <label>Collision</label>
-            <select value={draft.collision} onChange={(e) => updateMeta({ collision: e.target.value as ProfileDraft["collision"] })}>
+            <select
+              value={draft.collision}
+              onChange={(e) =>
+                updateMeta({ collision: e.target.value as ProfileDraft["collision"] })
+              }
+            >
               <option value="error">error</option>
               <option value="prefix">prefix</option>
               <option value="first">first</option>
@@ -254,7 +334,11 @@ export function ProfilePanel({ draft, onChange }: Props) {
         </div>
         <div>
           <label>Description (optional)</label>
-          <input value={draft.description ?? ""} onChange={(e) => updateMeta({ description: e.target.value || undefined })} placeholder="What this profile is for…" />
+          <input
+            value={draft.description ?? ""}
+            onChange={(e) => updateMeta({ description: e.target.value || undefined })}
+            placeholder="What this profile is for…"
+          />
         </div>
       </div>
 
@@ -271,9 +355,23 @@ export function ProfilePanel({ draft, onChange }: Props) {
         const nonDefault = server.projections.length;
 
         return (
-          <div key={server.upstream} style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 6, overflow: "hidden" }}>
+          <div
+            key={server.upstream}
+            style={{
+              background: "var(--surface)",
+              border: "1px solid var(--border)",
+              borderRadius: 6,
+              overflow: "hidden",
+            }}
+          >
             <div
-              style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 12px", cursor: "pointer" }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "8px 12px",
+                cursor: "pointer",
+              }}
               onClick={() => toggleExpand(server.upstream)}
             >
               <span style={{ fontWeight: 600 }}>
@@ -284,13 +382,36 @@ export function ProfilePanel({ draft, onChange }: Props) {
                   </span>
                 )}
               </span>
-              <button className="ghost danger" style={{ fontSize: 11 }} onClick={(e) => { e.stopPropagation(); removeServer(server.upstream); }}>remove</button>
+              <button
+                className="ghost danger"
+                style={{ fontSize: 11 }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removeServer(server.upstream);
+                }}
+              >
+                remove
+              </button>
             </div>
 
             {isOpen && (
-              <div style={{ borderTop: "1px solid var(--border)", padding: "10px 12px", display: "flex", flexDirection: "column", gap: 6 }}>
-                {tools === "loading" && <p style={{ color: "var(--text-dim)", fontSize: 12 }}>Loading tools…</p>}
-                {tools === "error" && <p style={{ color: "var(--red)", fontSize: 12 }}>Failed to load tools. Is the server running?</p>}
+              <div
+                style={{
+                  borderTop: "1px solid var(--border)",
+                  padding: "10px 12px",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 6,
+                }}
+              >
+                {tools === "loading" && (
+                  <p style={{ color: "var(--text-dim)", fontSize: 12 }}>Loading tools…</p>
+                )}
+                {tools === "error" && (
+                  <p style={{ color: "var(--red)", fontSize: 12 }}>
+                    Failed to load tools. Is the server running?
+                  </p>
+                )}
                 {toolList.map((tool) => {
                   const proj = server.projections.find((p) => p.tool === tool.name);
                   return (

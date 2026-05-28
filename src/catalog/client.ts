@@ -31,7 +31,10 @@ function writeCache(catalog: Catalog): void {
   writeFileSync(p, JSON.stringify(payload, null, 2), "utf8");
 }
 
-export async function fetchCatalog(url = DEFAULT_CATALOG_URL, forceRefresh = false): Promise<Catalog> {
+export async function fetchCatalog(
+  url = DEFAULT_CATALOG_URL,
+  forceRefresh = false,
+): Promise<Catalog> {
   if (!forceRefresh) {
     const cached = readCache();
     if (cached && Date.now() - cached.fetchedAt < CACHE_TTL_MS) {
@@ -40,7 +43,8 @@ export async function fetchCatalog(url = DEFAULT_CATALOG_URL, forceRefresh = fal
   }
 
   const res = await fetch(url);
-  if (!res.ok) throw new Error(`Failed to fetch catalog from ${url}: ${res.status} ${res.statusText}`);
+  if (!res.ok)
+    throw new Error(`Failed to fetch catalog from ${url}: ${res.status} ${res.statusText}`);
   const raw = await res.json();
   const catalog = CatalogSchema.parse(raw);
   writeCache(catalog);

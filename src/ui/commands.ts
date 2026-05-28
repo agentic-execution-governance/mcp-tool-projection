@@ -15,10 +15,7 @@ export const uiCommand = new Command("ui")
     const uiDist = path.resolve(__dirname, "..", "ui-app");
 
     if (!existsSync(path.join(uiDist, "index.html"))) {
-      console.error(
-        "UI not built. Run: npm run build:ui\n" +
-          "Or for development: npm run dev:ui",
-      );
+      console.error("UI not built. Run: npm run build:ui\n" + "Or for development: npm run dev:ui");
       process.exit(1);
     }
 

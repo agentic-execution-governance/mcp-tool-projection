@@ -38,7 +38,9 @@ catalogCommand
       const catalog = await fetchCatalog(undefined, opts.refresh);
       const entry = getCatalogEntry(catalog, name);
       if (!entry) {
-        console.error(`Server '${name}' not found in catalog. Run: mcp-proj catalog search <query>`);
+        console.error(
+          `Server '${name}' not found in catalog. Run: mcp-proj catalog search <query>`,
+        );
         process.exit(1);
       }
       const installed = addEntry({

@@ -10,9 +10,7 @@ export async function runParamResolver(
 ): Promise<Record<string, unknown>> {
   const result = await run(resolver, callerParams);
   if (!result || typeof result !== "object" || Array.isArray(result)) {
-    throw new Error(
-      `paramResolver must return a plain object, got: ${JSON.stringify(result)}`,
-    );
+    throw new Error(`paramResolver must return a plain object, got: ${JSON.stringify(result)}`);
   }
   return result as Record<string, unknown>;
 }
@@ -23,9 +21,7 @@ export async function runResultResolver(
 ): Promise<unknown[]> {
   const result = await run(resolver, callerParams);
   if (!Array.isArray(result)) {
-    throw new Error(
-      `resultResolver must return an array, got: ${JSON.stringify(result)}`,
-    );
+    throw new Error(`resultResolver must return an array, got: ${JSON.stringify(result)}`);
   }
   return result;
 }
@@ -46,13 +42,8 @@ async function run(
 // Trust model: inline-js evaluates in the current process with full Node.js access
 // (including `process`, file system, network). Only use projections from sources
 // you control — treat inline-js the same as arbitrary code execution.
-async function runInlineJs(
-  script: string,
-  params: Record<string, unknown>,
-): Promise<unknown> {
-  const fn = new Function(`return (${script.trim()})`)() as (
-    p: Record<string, unknown>,
-  ) => unknown;
+async function runInlineJs(script: string, params: Record<string, unknown>): Promise<unknown> {
+  const fn = new Function(`return (${script.trim()})`)() as (p: Record<string, unknown>) => unknown;
   return Promise.resolve(fn(params));
 }
 
@@ -86,9 +77,7 @@ async function runScriptFile(
     });
     child.on("close", (code) => {
       if (code !== 0) {
-        return rej(
-          new Error(`Resolver script '${scriptPath}' exited with code ${code ?? "null"}`),
-        );
+        return rej(new Error(`Resolver script '${scriptPath}' exited with code ${code ?? "null"}`));
       }
       try {
         res(JSON.parse(output));

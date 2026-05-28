@@ -18,7 +18,10 @@ export function ServerPanel({ onAddServer, addedServers }: Props) {
   }, []);
 
   async function toggleServer(name: string) {
-    if (expanded === name) { setExpanded(null); return; }
+    if (expanded === name) {
+      setExpanded(null);
+      return;
+    }
     setExpanded(name);
     if (!tools[name]) {
       setLoading(name);
@@ -44,9 +47,23 @@ export function ServerPanel({ onAddServer, addedServers }: Props) {
         const isAdded = addedServers.includes(s.name);
         const isOpen = expanded === s.name;
         return (
-          <div key={s.name} style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 6, overflow: "hidden" }}>
+          <div
+            key={s.name}
+            style={{
+              background: "var(--surface)",
+              border: "1px solid var(--border)",
+              borderRadius: 6,
+              overflow: "hidden",
+            }}
+          >
             <div
-              style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 10px", cursor: "pointer" }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "8px 10px",
+                cursor: "pointer",
+              }}
               onClick={() => toggleServer(s.name)}
             >
               <span style={{ fontWeight: 600, color: isAdded ? "var(--accent)" : "var(--text)" }}>
@@ -55,7 +72,10 @@ export function ServerPanel({ onAddServer, addedServers }: Props) {
               <button
                 className={isAdded ? "ghost" : "primary"}
                 style={{ fontSize: 11, padding: "2px 8px" }}
-                onClick={(e) => { e.stopPropagation(); if (!isAdded) onAddServer(s.name); }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (!isAdded) onAddServer(s.name);
+                }}
               >
                 {isAdded ? "added" : "+ add to profile"}
               </button>
@@ -63,15 +83,37 @@ export function ServerPanel({ onAddServer, addedServers }: Props) {
             {isOpen && (
               <div style={{ padding: "0 10px 10px", borderTop: "1px solid var(--border)" }}>
                 {loading === s.name ? (
-                  <p style={{ color: "var(--text-dim)", fontSize: 12, marginTop: 8 }}>Loading tools…</p>
+                  <p style={{ color: "var(--text-dim)", fontSize: 12, marginTop: 8 }}>
+                    Loading tools…
+                  </p>
                 ) : (tools[s.name] ?? []).length === 0 ? (
-                  <p style={{ color: "var(--text-dim)", fontSize: 12, marginTop: 8 }}>No tools found.</p>
+                  <p style={{ color: "var(--text-dim)", fontSize: 12, marginTop: 8 }}>
+                    No tools found.
+                  </p>
                 ) : (
                   <div style={{ marginTop: 8, display: "flex", flexDirection: "column", gap: 4 }}>
                     {(tools[s.name] ?? []).map((t) => (
-                      <div key={t.name} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <div
+                        key={t.name}
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                        }}
+                      >
                         <span style={{ fontFamily: "monospace", fontSize: 12 }}>{t.name}</span>
-                        <span style={{ color: "var(--text-dim)", fontSize: 11, maxWidth: 160, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{t.description}</span>
+                        <span
+                          style={{
+                            color: "var(--text-dim)",
+                            fontSize: 11,
+                            maxWidth: 160,
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {t.description}
+                        </span>
                       </div>
                     ))}
                   </div>
