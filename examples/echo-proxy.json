@@ -1,5 +1,0 @@
-{
-  "name": "echo-proxy",
-  "command": "npx",
-  "args": ["tsx", "src/cli/index.ts", "serve", "echo-server", "examples/proxy-projections/"]
-}

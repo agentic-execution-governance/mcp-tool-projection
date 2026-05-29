@@ -4,12 +4,12 @@ Declarative tool projections over arbitrary MCP servers — no per-projection co
 
 A **projection** is a YAML or JSON file that describes how a tool should be exposed to callers. Four kinds are supported:
 
-| Kind | What it does |
-| ---- | ------------ |
-| `verbatim` | Pass-through alias — caller params forwarded as-is |
-| `partial` | Pre-fills a subset of params; caller supplies the rest |
+| Kind        | What it does                                              |
+| ----------- | --------------------------------------------------------- |
+| `verbatim`  | Pass-through alias — caller params forwarded as-is        |
+| `partial`   | Pre-fills a subset of params; caller supplies the rest    |
 | `simulated` | Returns a canned response without calling the real server |
-| `absent` | Hides the tool entirely; calls are rejected |
+| `absent`    | Hides the tool entirely; calls are rejected               |
 
 A **proxy server** (`mcp-proj serve`) wraps one or more upstream MCP servers and applies a set of projections, producing a new MCP server that any client can connect to.
 
@@ -61,14 +61,14 @@ Inspect or call any MCP server directly. A server config is a JSON or YAML file:
 {
   "name": "echo-server",
   "command": "npx",
-  "args": ["tsx", "examples/echo-server.ts"]
+  "args": ["tsx", "examples/mcp/echo-server.ts"]
 }
 ```
 
 ### List tools
 
 ```bash
-npm run dev -- tools list examples/echo-server.json
+npm run dev -- tools list examples/mcp/echo-server.json
 ```
 
 ```text
@@ -83,13 +83,13 @@ npm run dev -- tools list examples/echo-server.json
 
 ```bash
 # Machine-readable JSON output
-npm run dev -- tools list examples/echo-server.json --json
+npm run dev -- tools list examples/mcp/echo-server.json --json
 ```
 
 ### Call a tool
 
 ```bash
-npm run dev -- tools call examples/echo-server.json echo '{"message":"hello"}'
+npm run dev -- tools call examples/mcp/echo-server.json echo '{"message":"hello"}'
 ```
 
 ```json
@@ -97,7 +97,7 @@ npm run dev -- tools call examples/echo-server.json echo '{"message":"hello"}'
 ```
 
 ```bash
-npm run dev -- tools call examples/echo-server.json add '{"a":3,"b":4}'
+npm run dev -- tools call examples/mcp/echo-server.json add '{"a":3,"b":4}'
 ```
 
 ```json
@@ -112,7 +112,7 @@ Install server definitions by name so you don't have to pass file paths everywhe
 The registry is stored at `~/.mcp-projection/registry.json`.
 
 ```bash
-npm run dev -- registry install examples/echo-server.json
+npm run dev -- registry install examples/mcp/echo-server.json
 # Installed 'echo-server' (2026-05-28T...)
 
 npm run dev -- registry list
@@ -120,7 +120,7 @@ npm run dev -- registry list
 
 ```text
   echo-server
-    command:  npx tsx examples/echo-server.ts
+    command:  npx tsx examples/mcp/echo-server.ts
     installed: 2026-05-28T...
 ```
 
@@ -144,14 +144,14 @@ Define projections as YAML files and run them directly — no code needed.
 ### Projection file format
 
 ```yaml
-name: add-partial          # identifier
-kind: partial              # verbatim | partial | simulated | absent
-server: echo-server        # registry name of the upstream server
-tool: add                  # tool to project
-description: "..."         # optional
+name: add-partial # identifier
+kind: partial # verbatim | partial | simulated | absent
+server: echo-server # registry name of the upstream server
+tool: add # tool to project
+description: "..." # optional
 
 # kind-specific fields:
-params:                    # partial: default params (caller can override)
+params: # partial: default params (caller can override)
   a: 10
 ```
 
@@ -169,7 +169,7 @@ response:
 
 ```bash
 # verbatim — passes params straight to the real tool
-npm run dev -- projection run projections/echo-verbatim.yaml '{"message":"hello"}'
+npm run dev -- projection run examples/projections/echo-verbatim.yaml '{"message":"hello"}'
 ```
 
 ```json
@@ -178,7 +178,7 @@ npm run dev -- projection run projections/echo-verbatim.yaml '{"message":"hello"
 
 ```bash
 # partial — a=10 is pre-filled; caller only needs to supply b
-npm run dev -- projection run projections/add-partial.yaml '{"b":5}'
+npm run dev -- projection run examples/projections/add-partial.yaml '{"b":5}'
 ```
 
 ```json
@@ -187,7 +187,7 @@ npm run dev -- projection run projections/add-partial.yaml '{"b":5}'
 
 ```bash
 # simulated — no server call; returns canned response regardless of params
-npm run dev -- projection run projections/echo-simulated.yaml '{"message":"ignored"}'
+npm run dev -- projection run examples/projections/echo-simulated.yaml '{"message":"ignored"}'
 ```
 
 ```json
@@ -196,7 +196,7 @@ npm run dev -- projection run projections/echo-simulated.yaml '{"message":"ignor
 
 ```bash
 # absent — tool is hidden; call is rejected immediately
-npm run dev -- projection run projections/add-absent.yaml
+npm run dev -- projection run examples/projections/add-absent.yaml
 # Tool 'add' is absent under projection 'add-absent'
 # exit 1
 ```
@@ -204,7 +204,7 @@ npm run dev -- projection run projections/add-absent.yaml
 ### List projections in a directory
 
 ```bash
-npm run dev -- projection list projections/
+npm run dev -- projection list examples/projections/
 ```
 
 ```text
@@ -223,7 +223,7 @@ Wrap an upstream MCP server with a set of projections and expose the result as a
 The proxy is itself a stdio MCP server, so it can be used anywhere a normal server config is accepted — including as input to `mcp-proj tools list/call`.
 
 ```bash
-npm run dev -- serve echo-server examples/proxy-projections/
+npm run dev -- serve echo-server examples/demos/echo-proxy/projections/
 # Proxy started: echo-server with 2 projection(s)
 ```
 
@@ -233,18 +233,24 @@ Create a server config that points at the proxy:
 {
   "name": "echo-proxy",
   "command": "npx",
-  "args": ["tsx", "src/cli/index.ts", "serve", "echo-server", "examples/proxy-projections/"]
+  "args": [
+    "tsx",
+    "src/cli/index.ts",
+    "serve",
+    "echo-server",
+    "examples/demos/echo-proxy/projections/"
+  ]
 }
 ```
 
 ```bash
 # List — add is hidden, only echo is visible
-npm run dev -- tools list examples/echo-proxy.json
+npm run dev -- tools list examples/demos/echo-proxy/server.json
 ```
 
 ```bash
 # Call echo — proxy intercepts with the simulated projection; real server not called
-npm run dev -- tools call examples/echo-proxy.json echo '{"message":"hello"}'
+npm run dev -- tools call examples/demos/echo-proxy/server.json echo '{"message":"hello"}'
 ```
 
 ```json
@@ -264,7 +270,7 @@ npm run dev -- tools call examples/echo-proxy.json echo '{"message":"hello"}'
 
 ```bash
 npm run dev -- registry install brave-search.json
-npm run dev -- serve brave-search projections/
+npm run dev -- serve brave-search examples/projections/
 ```
 
 ---
@@ -274,16 +280,16 @@ npm run dev -- serve brave-search projections/
 A **profile** is a single YAML file that defines a unified tool surface across multiple upstream MCP servers. It replaces the `<upstream> <projections-dir>` pair with a richer declaration: per-server projection sets, a mix of inline projections and file references, and a strategy for resolving tool name collisions.
 
 ```yaml
-# profiles/production.yaml
+# examples/profiles/production.yaml
 name: production
 description: "Restricted tool surface for production agents"
-collision: prefix   # error | prefix | first
+collision: prefix # error | prefix | first
 
 servers:
   - upstream: brave-search
     projections:
-      - file: projections/search-readonly.yaml     # file reference
-      - kind: absent                               # inline projection
+      - file: examples/projections/search-readonly.yaml # file reference
+      - kind: absent # inline projection
         name: hide-image-search
         tool: brave_image_search
 
@@ -296,16 +302,16 @@ servers:
 
 The `collision` field controls what happens when two upstreams expose a tool with the same name:
 
-| Strategy | Behaviour |
-| -------- | --------- |
-| `error` (default) | Refuse to start |
-| `prefix` | Rename conflicting tools as `<server>__<tool>` |
-| `first` | Keep the first server's tool, silently drop the rest |
+| Strategy          | Behaviour                                            |
+| ----------------- | ---------------------------------------------------- |
+| `error` (default) | Refuse to start                                      |
+| `prefix`          | Rename conflicting tools as `<server>__<tool>`       |
+| `first`           | Keep the first server's tool, silently drop the rest |
 
 ### Start a profile proxy
 
 ```bash
-npm run dev -- serve --profile profiles/production.yaml
+npm run dev -- serve --profile examples/profiles/production.yaml
 # Profile proxy started: 'production' — 2 server(s), collision=prefix
 ```
 
@@ -313,12 +319,12 @@ npm run dev -- serve --profile profiles/production.yaml
 
 ```bash
 # Check that all file references resolve and the schema is valid
-npm run dev -- profile validate profiles/production.yaml
+npm run dev -- profile validate examples/profiles/production.yaml
 # Profile 'production' is valid.
 #   Servers: 2, Projections: 3, Collision: prefix
 
 # Print the declared tool surface (no live server connections needed)
-npm run dev -- profile list profiles/production.yaml
+npm run dev -- profile list examples/profiles/production.yaml
 ```
 
 ```text

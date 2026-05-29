@@ -1,5 +1,5 @@
 {
   "name": "echo-server-b",
   "command": "npx",
-  "args": ["tsx", "examples/echo-server.ts"]
+  "args": ["tsx", "examples/mcp/echo-server.ts"]
 }
