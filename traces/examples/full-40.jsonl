@@ -1,0 +1,4 @@
+{"timestamp":"2026-05-28T12:00:00.000Z","event_type":"tools_list","profile":"full-40","latency_ms":91,"schema_bytes":28640}
+{"timestamp":"2026-05-28T12:00:04.771Z","event_type":"tools_call","profile":"full-40","tool_name":"brave_web_search","latency_ms":438,"schema_bytes":620,"result_bytes":3104}
+{"timestamp":"2026-05-28T12:00:09.103Z","event_type":"tools_call","profile":"full-40","tool_name":"read_file","latency_ms":22,"schema_bytes":310,"result_bytes":980}
+{"timestamp":"2026-05-28T12:00:13.559Z","event_type":"tools_call","profile":"full-40","tool_name":"create_pull_request","latency_ms":901,"schema_bytes":512,"result_bytes":420}
