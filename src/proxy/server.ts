@@ -16,6 +16,18 @@ import type { ToolInfo } from "../server/client.js";
 import type { Projection } from "../projection/schema.js";
 import type { CollisionStrategy } from "../profile/schema.js";
 import type { ServerSlot } from "../profile/resolver.js";
+import { appendTraceEvent } from "../trace/writer.js";
+import {
+  byteLength,
+  estimateTokens,
+  estimateToolSchemaTokens,
+  toolSchemaBytes,
+} from "../trace/tokenEstimator.js";
+
+export type ProfileTraceOptions = {
+  profileName: string | null;
+  tracePath?: string;
+};
 
 export async function createProxyServer(
   upstream: ServerConfig,
@@ -153,6 +165,7 @@ async function routeCall(route: RouteEntry, callerParams: Record<string, unknown
 export async function createProfileProxyServer(
   slots: ServerSlot[],
   collision: CollisionStrategy,
+  traceOptions?: ProfileTraceOptions,
 ): Promise<Server> {
   const routingTable = await buildRoutingTable(slots, collision);
 
@@ -163,34 +176,56 @@ export async function createProfileProxyServer(
   );
 
   server.setRequestHandler(ListToolsRequestSchema, async () => {
-    const tools = [...routingTable.entries()].map(([exposedName, route]) => {
-      const applied = route.projection
-        ? applyProjectionToTool(route.toolInfo, route.projection)
-        : route.toolInfo;
-      return {
-        name: exposedName,
-        description: applied.description,
-        inputSchema: applied.inputSchema,
-      };
-    });
+    const started = Date.now();
+    const tools = exposedTools(routingTable);
+    if (traceOptions?.tracePath) {
+      appendTraceEvent(traceOptions.tracePath, {
+        timestamp: new Date().toISOString(),
+        event_type: "tools_list",
+        profile: traceOptions.profileName,
+        latency_ms: Date.now() - started,
+        total_tools: tools.length,
+        schema_bytes: toolSchemaBytes(tools),
+        estimated_schema_tokens: estimateToolSchemaTokens(tools),
+        result_bytes: byteLength({ tools }),
+      });
+    }
     return { tools };
   });
 
   server.setRequestHandler(CallToolRequestSchema, async (req) => {
+    const started = Date.now();
     const args = (req.params.arguments ?? {}) as Record<string, unknown>;
     const route = routingTable.get(req.params.name);
     if (!route) {
-      return {
+      const result = {
         content: [{ type: "text", text: `Tool '${req.params.name}' not found` }],
         isError: true,
       };
+      traceToolCall(traceOptions, req.params.name, undefined, result.content, Date.now() - started);
+      return result;
     }
     try {
       const result = await routeCall(route, args);
+      traceToolCall(
+        traceOptions,
+        req.params.name,
+        exposedTool(req.params.name, route),
+        result.content,
+        Date.now() - started,
+      );
       return { content: result.content as never[], isError: result.isError };
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
-      return { content: [{ type: "text", text: msg }], isError: true };
+      const content = [{ type: "text", text: msg }];
+      traceToolCall(
+        traceOptions,
+        req.params.name,
+        exposedTool(req.params.name, route),
+        content,
+        Date.now() - started,
+      );
+      return { content, isError: true };
     }
   });
 
@@ -200,8 +235,9 @@ export async function createProfileProxyServer(
 export async function serveProfileStdio(
   slots: ServerSlot[],
   collision: CollisionStrategy,
+  traceOptions?: ProfileTraceOptions,
 ): Promise<void> {
-  const server = await createProfileProxyServer(slots, collision);
+  const server = await createProfileProxyServer(slots, collision, traceOptions);
   await server.connect(new StdioServerTransport());
 }
 
@@ -209,8 +245,46 @@ export async function serveProfileTransport(
   slots: ServerSlot[],
   collision: CollisionStrategy,
   transport: Transport,
+  traceOptions?: ProfileTraceOptions,
 ): Promise<Server> {
-  const server = await createProfileProxyServer(slots, collision);
+  const server = await createProfileProxyServer(slots, collision, traceOptions);
   await server.connect(transport);
   return server;
+}
+
+function exposedTools(routingTable: Map<string, RouteEntry>): ToolInfo[] {
+  return [...routingTable.entries()].map(([exposedName, route]) => exposedTool(exposedName, route));
+}
+
+function exposedTool(exposedName: string, route: RouteEntry): ToolInfo {
+  const applied = route.projection
+    ? applyProjectionToTool(route.toolInfo, route.projection)
+    : route.toolInfo;
+  return {
+    name: exposedName,
+    description: applied.description,
+    inputSchema: applied.inputSchema,
+  };
+}
+
+function traceToolCall(
+  traceOptions: ProfileTraceOptions | undefined,
+  toolName: string,
+  tool: ToolInfo | undefined,
+  content: unknown[],
+  latencyMs: number,
+): void {
+  if (!traceOptions?.tracePath) return;
+
+  appendTraceEvent(traceOptions.tracePath, {
+    timestamp: new Date().toISOString(),
+    event_type: "tools_call",
+    profile: traceOptions.profileName,
+    tool_name: toolName,
+    latency_ms: latencyMs,
+    schema_bytes: tool ? byteLength(tool) : 0,
+    estimated_schema_tokens: tool ? estimateTokens(tool) : 0,
+    result_bytes: byteLength(content),
+    estimated_result_tokens: estimateTokens(content),
+  });
 }

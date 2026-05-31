@@ -13,11 +13,12 @@ export const serveCommand = new Command("serve")
   .argument("[upstream]", "Registry name or path to a server config file")
   .argument("[projections-dir]", "Directory of projection definition files")
   .option("--profile <file>", "Profile file to use instead of upstream + projections-dir")
+  .option("--trace <path>", "Append live profile proxy events to a JSONL trace file")
   .action(
     async (
       upstream: string | undefined,
       projectionsDir: string | undefined,
-      options: { profile?: string },
+      options: { profile?: string; trace?: string },
     ) => {
       if (options.profile) {
         const profile = loadProfile(resolve(options.profile));
@@ -25,7 +26,10 @@ export const serveCommand = new Command("serve")
         process.stderr.write(
           `Profile proxy started: '${profile.name}' — ${slots.length} server(s), collision=${profile.collision}\n`,
         );
-        await serveProfileStdio(slots, profile.collision);
+        await serveProfileStdio(slots, profile.collision, {
+          profileName: profile.name,
+          tracePath: options.trace ? resolve(options.trace) : undefined,
+        });
         return;
       }
 

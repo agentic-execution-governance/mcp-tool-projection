@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeAll } from "vitest";
-import { writeFileSync, mkdtempSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
@@ -11,6 +11,7 @@ import { loadProjectionSet } from "../proxy/router.js";
 import type { ServerSlot } from "./resolver.js";
 import type { Projection } from "../projection/schema.js";
 import type { ServerConfig } from "../server/config.js";
+import type { ProfileTraceOptions } from "../proxy/server.js";
 
 // ─── mocks ────────────────────────────────────────────────────────────────────
 
@@ -45,8 +46,9 @@ function writeTmp(name: string, content: string): string {
 async function makeProfileClient(
   slots: ServerSlot[],
   collision: "error" | "prefix" | "first" = "error",
+  traceOptions?: ProfileTraceOptions,
 ) {
-  const proxyServer = await createProfileProxyServer(slots, collision);
+  const proxyServer = await createProfileProxyServer(slots, collision, traceOptions);
   const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
   const client = new Client({ name: "test-client", version: "0.0.1" });
   await Promise.all([
@@ -214,6 +216,38 @@ describe("createProfileProxyServer — single server", () => {
       "echo",
       expect.objectContaining({ prefix: "hi", message: "there" }),
     );
+  });
+
+  it("writes live trace events for tools/list and tools/call", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "mcp-proj-trace-test-"));
+    const tracePath = join(dir, "trace.jsonl");
+    const { client, cleanup } = await makeProfileClient([slot("server-a")], "error", {
+      profileName: "trace-test",
+      tracePath,
+    });
+
+    await client.listTools();
+    await client.callTool({ name: "echo", arguments: { message: "hello" } });
+    await cleanup();
+
+    const events = readFileSync(tracePath, "utf8")
+      .trim()
+      .split("\n")
+      .map((line) => JSON.parse(line) as Record<string, unknown>);
+
+    expect(events).toHaveLength(2);
+    expect(events[0]).toMatchObject({
+      event_type: "tools_list",
+      profile: "trace-test",
+      total_tools: 2,
+    });
+    expect(events[1]).toMatchObject({
+      event_type: "tools_call",
+      profile: "trace-test",
+      tool_name: "echo",
+    });
+    expect(events[1].result_bytes).toEqual(expect.any(Number));
+    expect(events[1].estimated_result_tokens).toEqual(expect.any(Number));
   });
 });
 
