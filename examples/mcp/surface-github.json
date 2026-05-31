@@ -1,0 +1,5 @@
+{
+  "name": "surface-github",
+  "command": "npx",
+  "args": ["tsx", "examples/mcp/surface-server.ts", "github"]
+}

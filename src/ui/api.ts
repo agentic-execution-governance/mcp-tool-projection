@@ -1,7 +1,6 @@
 import express, { type Request, type Response } from "express";
 import cors from "cors";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { z } from "zod";
 import { readRegistry } from "../registry/store.js";
 import { listTools } from "../server/client.js";
@@ -9,8 +8,6 @@ import { applyProjectionToTool } from "../proxy/router.js";
 import { CollisionStrategySchema } from "../profile/schema.js";
 import { resolveProfile } from "../profile/resolver.js";
 import type { Projection } from "../projection/schema.js";
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Loose schema for the UI draft — projections don't have `name` or `server` (inherited from upstream)
 const UiProjectionSchema = z.object({

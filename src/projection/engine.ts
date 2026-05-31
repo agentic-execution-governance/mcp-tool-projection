@@ -83,9 +83,6 @@ async function execute(
     case "partial": {
       if (projection.readonly) {
         const fixed = Object.keys(projection.params);
-        const extra = Object.keys(callerParams).filter(
-          (k) => !fixed.includes(k) === false && !fixed.includes(k),
-        );
         // readonly: caller may only supply params NOT already in projection.params
         const disallowed = Object.keys(callerParams).filter((k) => fixed.includes(k));
         if (disallowed.length > 0) {

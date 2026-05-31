@@ -1,0 +1,5 @@
+{
+  "name": "surface-repo",
+  "command": "npx",
+  "args": ["tsx", "examples/mcp/surface-server.ts", "repo"]
+}

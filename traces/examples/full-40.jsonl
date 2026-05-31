@@ -1,4 +1,5 @@
-{"timestamp":"2026-05-28T12:00:00.000Z","event_type":"tools_list","profile":"full-40","latency_ms":91,"schema_bytes":28640}
-{"timestamp":"2026-05-28T12:00:04.771Z","event_type":"tools_call","profile":"full-40","tool_name":"brave_web_search","latency_ms":438,"schema_bytes":620,"result_bytes":3104}
-{"timestamp":"2026-05-28T12:00:09.103Z","event_type":"tools_call","profile":"full-40","tool_name":"read_file","latency_ms":22,"schema_bytes":310,"result_bytes":980}
-{"timestamp":"2026-05-28T12:00:13.559Z","event_type":"tools_call","profile":"full-40","tool_name":"create_pull_request","latency_ms":901,"schema_bytes":512,"result_bytes":420}
+{"timestamp":"2026-05-28T12:00:00.000Z","event_type":"tools_list","profile":"full-40","latency_ms":4121,"total_tools":40,"schema_bytes":11712,"estimated_schema_tokens":3272,"result_bytes":11763}
+{"timestamp":"2026-05-28T12:00:04.771Z","event_type":"tools_call","profile":"full-40","tool_name":"search_web","latency_ms":438,"schema_bytes":292,"estimated_schema_tokens":82,"result_bytes":3104,"estimated_result_tokens":863}
+{"timestamp":"2026-05-28T12:00:09.103Z","event_type":"tools_call","profile":"full-40","tool_name":"repo_read_file","latency_ms":22,"schema_bytes":239,"estimated_schema_tokens":67,"result_bytes":980,"estimated_result_tokens":273}
+{"timestamp":"2026-05-28T12:00:10.418Z","event_type":"tools_call","profile":"full-40","tool_name":"repo_search_code","latency_ms":35,"schema_bytes":253,"estimated_schema_tokens":71,"result_bytes":1240,"estimated_result_tokens":345}
+{"timestamp":"2026-05-28T12:00:13.559Z","event_type":"tools_call","profile":"full-40","tool_name":"github_create_pull_request","latency_ms":901,"schema_bytes":303,"estimated_schema_tokens":85,"result_bytes":420,"estimated_result_tokens":117}

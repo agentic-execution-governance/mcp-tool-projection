@@ -10,8 +10,12 @@ const base = z.object({
 
 export const ToolsListEventSchema = base.extend({
   event_type: z.literal("tools_list"),
+  total_tools: z.number().int().nonnegative(),
   // Total byte size of all tool schemas returned by this tools/list call.
   schema_bytes: z.number().int().nonnegative(),
+  estimated_schema_tokens: z.number().int().nonnegative(),
+  // Byte size of the full JSON-serialised tools/list response payload.
+  result_bytes: z.number().int().nonnegative(),
 });
 
 export const ToolsCallEventSchema = base.extend({
@@ -19,8 +23,10 @@ export const ToolsCallEventSchema = base.extend({
   tool_name: z.string(),
   // Byte size of this tool's schema as returned by tools/list.
   schema_bytes: z.number().int().nonnegative(),
+  estimated_schema_tokens: z.number().int().nonnegative(),
   // Byte size of the JSON-serialised response content array.
   result_bytes: z.number().int().nonnegative(),
+  estimated_result_tokens: z.number().int().nonnegative(),
 });
 
 export const TraceEventSchema = z.discriminatedUnion("event_type", [

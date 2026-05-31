@@ -1,0 +1,57 @@
+# Broad baseline for the trace-cost article: four local MCP fixtures, ten tools each.
+name: full-40
+description: "Broad 40-tool surface for research, repository inspection, GitHub, and communication tasks"
+collision: error
+
+servers:
+  - upstream: examples/mcp/surface-search.json
+    projections:
+      - { kind: verbatim, name: search-web, tool: search_web }
+      - { kind: verbatim, name: search-news, tool: search_news }
+      - { kind: verbatim, name: search-images, tool: search_images }
+      - { kind: verbatim, name: search-videos, tool: search_videos }
+      - { kind: verbatim, name: search-academic, tool: search_academic }
+      - { kind: verbatim, name: search-local, tool: search_local }
+      - { kind: verbatim, name: search-social, tool: search_social }
+      - { kind: verbatim, name: search-patents, tool: search_patents }
+      - { kind: verbatim, name: search-packages, tool: search_packages }
+      - { kind: verbatim, name: search-vulnerabilities, tool: search_vulnerabilities }
+
+  - upstream: examples/mcp/surface-repo.json
+    projections:
+      - { kind: verbatim, name: repo-read-file, tool: repo_read_file }
+      - { kind: verbatim, name: repo-search-code, tool: repo_search_code }
+      - { kind: verbatim, name: repo-list-files, tool: repo_list_files }
+      - { kind: verbatim, name: repo-get-diff, tool: repo_get_diff }
+      - { kind: verbatim, name: repo-blame, tool: repo_blame }
+      - { kind: verbatim, name: repo-write-file, tool: repo_write_file }
+      - { kind: verbatim, name: repo-delete-file, tool: repo_delete_file }
+      - { kind: verbatim, name: repo-run-tests, tool: repo_run_tests }
+      - { kind: verbatim, name: repo-format, tool: repo_format }
+      - { kind: verbatim, name: repo-open-workspace, tool: repo_open_workspace }
+
+  - upstream: examples/mcp/surface-github.json
+    projections:
+      - { kind: verbatim, name: github-create-pr, tool: github_create_pull_request }
+      - { kind: verbatim, name: github-list-issues, tool: github_list_issues }
+      - { kind: verbatim, name: github-comment-issue, tool: github_comment_issue }
+      - { kind: verbatim, name: github-merge-pr, tool: github_merge_pull_request }
+      - { kind: verbatim, name: github-close-issue, tool: github_close_issue }
+      - { kind: verbatim, name: github-request-review, tool: github_request_review }
+      - { kind: verbatim, name: github-list-checks, tool: github_list_checks }
+      - { kind: verbatim, name: github-create-branch, tool: github_create_branch }
+      - { kind: verbatim, name: github-push-commit, tool: github_push_commit }
+      - { kind: verbatim, name: github-read-file, tool: github_read_file }
+
+  - upstream: examples/mcp/surface-comms.json
+    projections:
+      - { kind: verbatim, name: slack-post-message, tool: slack_post_message }
+      - { kind: verbatim, name: slack-read-thread, tool: slack_read_thread }
+      - { kind: verbatim, name: email-send, tool: email_send }
+      - { kind: verbatim, name: email-search, tool: email_search }
+      - { kind: verbatim, name: calendar-create-event, tool: calendar_create_event }
+      - { kind: verbatim, name: calendar-list-events, tool: calendar_list_events }
+      - { kind: verbatim, name: notion-create-page, tool: notion_create_page }
+      - { kind: verbatim, name: notion-search, tool: notion_search }
+      - { kind: verbatim, name: docs-create, tool: docs_create }
+      - { kind: verbatim, name: docs-comment, tool: docs_comment }

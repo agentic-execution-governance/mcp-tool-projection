@@ -6,7 +6,10 @@ const baseList = {
   event_type: "tools_list" as const,
   profile: "minimal-4",
   latency_ms: 45,
+  total_tools: 4,
   schema_bytes: 4321,
+  estimated_schema_tokens: 1200,
+  result_bytes: 4400,
 };
 
 const baseCall = {
@@ -16,7 +19,9 @@ const baseCall = {
   tool_name: "brave_web_search",
   latency_ms: 320,
   schema_bytes: 512,
+  estimated_schema_tokens: 143,
   result_bytes: 1024,
+  estimated_result_tokens: 285,
 };
 
 describe("ToolsListEventSchema", () => {
@@ -39,7 +44,8 @@ describe("ToolsListEventSchema", () => {
   });
 
   it("rejects missing schema_bytes", () => {
-    const { schema_bytes: _, ...rest } = baseList;
+    const rest = { ...baseList };
+    delete (rest as Partial<typeof baseList>).schema_bytes;
     expect(ToolsListEventSchema.safeParse(rest).success).toBe(false);
   });
 });
@@ -54,12 +60,14 @@ describe("ToolsCallEventSchema", () => {
   });
 
   it("rejects missing tool_name", () => {
-    const { tool_name: _, ...rest } = baseCall;
+    const rest = { ...baseCall };
+    delete (rest as Partial<typeof baseCall>).tool_name;
     expect(ToolsCallEventSchema.safeParse(rest).success).toBe(false);
   });
 
   it("rejects missing result_bytes", () => {
-    const { result_bytes: _, ...rest } = baseCall;
+    const rest = { ...baseCall };
+    delete (rest as Partial<typeof baseCall>).result_bytes;
     expect(ToolsCallEventSchema.safeParse(rest).success).toBe(false);
   });
 });
@@ -82,7 +90,8 @@ describe("TraceEventSchema (discriminated union)", () => {
   });
 
   it("rejects tools_call missing tool_name via the union", () => {
-    const { tool_name: _, ...rest } = baseCall;
+    const rest = { ...baseCall };
+    delete (rest as Partial<typeof baseCall>).tool_name;
     expect(TraceEventSchema.safeParse(rest).success).toBe(false);
   });
 });

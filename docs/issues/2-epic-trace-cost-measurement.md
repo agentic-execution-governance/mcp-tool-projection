@@ -43,9 +43,9 @@ Compare a broad profile with many upstream MCP servers against a minimal project
 
 ## Subtasks
 
-- [ ] #3 Define JSONL trace format for `tools/list` and `tools/call`
-- [ ] #4 Implement token estimation for tool schemas and responses
-- [ ] #5 Implement `profile measure` command for static surface analysis
-- [ ] #6 Implement `trace summarize` command for comparing runs
-- [ ] #7 Create demo profiles (`full-40.yaml` and `minimal-4.yaml`)
-- [ ] #8 Produce article-ready comparison table from trace data
+- [x] #3 Define JSONL trace format for `tools/list` and `tools/call`
+- [x] #4 Implement token estimation for tool schemas and responses
+- [x] #5 Implement `profile measure` command for static surface analysis
+- [x] #6 Implement `trace summarize` command for comparing runs
+- [x] #7 Create demo profiles (`full-40.yaml` and `minimal-4.yaml`)
+- [x] #8 Produce article-ready comparison table from trace data

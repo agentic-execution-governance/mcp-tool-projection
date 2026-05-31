@@ -1,0 +1,5 @@
+{
+  "name": "surface-search",
+  "command": "npx",
+  "args": ["tsx", "examples/mcp/surface-server.ts", "search"]
+}

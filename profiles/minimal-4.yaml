@@ -1,0 +1,73 @@
+# Minimal projected surface for the same task as full-40.yaml.
+name: minimal-4
+description: "Four-tool surface for research, repository inspection, code search, and pull request creation"
+collision: error
+
+servers:
+  - upstream: examples/mcp/surface-search.json
+    projections:
+      - kind: partial
+        name: search-web-safe
+        tool: search_web
+        params:
+          safesearch: strict
+      - { kind: absent, name: hide-search-news, tool: search_news }
+      - { kind: absent, name: hide-search-images, tool: search_images }
+      - { kind: absent, name: hide-search-videos, tool: search_videos }
+      - { kind: absent, name: hide-search-academic, tool: search_academic }
+      - { kind: absent, name: hide-search-local, tool: search_local }
+      - { kind: absent, name: hide-search-social, tool: search_social }
+      - { kind: absent, name: hide-search-patents, tool: search_patents }
+      - { kind: absent, name: hide-search-packages, tool: search_packages }
+      - { kind: absent, name: hide-search-vulnerabilities, tool: search_vulnerabilities }
+
+  - upstream: examples/mcp/surface-repo.json
+    projections:
+      - kind: partial
+        name: read-source-file
+        tool: repo_read_file
+        params:
+          root: src
+      - kind: partial
+        name: search-typescript-code
+        tool: repo_search_code
+        params:
+          language: typescript
+      - { kind: absent, name: hide-repo-list-files, tool: repo_list_files }
+      - { kind: absent, name: hide-repo-get-diff, tool: repo_get_diff }
+      - { kind: absent, name: hide-repo-blame, tool: repo_blame }
+      - { kind: absent, name: hide-repo-write-file, tool: repo_write_file }
+      - { kind: absent, name: hide-repo-delete-file, tool: repo_delete_file }
+      - { kind: absent, name: hide-repo-run-tests, tool: repo_run_tests }
+      - { kind: absent, name: hide-repo-format, tool: repo_format }
+      - { kind: absent, name: hide-repo-open-workspace, tool: repo_open_workspace }
+
+  - upstream: examples/mcp/surface-github.json
+    projections:
+      - kind: partial
+        name: create-mainline-pr
+        tool: github_create_pull_request
+        params:
+          base: main
+      - { kind: absent, name: hide-github-list-issues, tool: github_list_issues }
+      - { kind: absent, name: hide-github-comment-issue, tool: github_comment_issue }
+      - { kind: absent, name: hide-github-merge-pr, tool: github_merge_pull_request }
+      - { kind: absent, name: hide-github-close-issue, tool: github_close_issue }
+      - { kind: absent, name: hide-github-request-review, tool: github_request_review }
+      - { kind: absent, name: hide-github-list-checks, tool: github_list_checks }
+      - { kind: absent, name: hide-github-create-branch, tool: github_create_branch }
+      - { kind: absent, name: hide-github-push-commit, tool: github_push_commit }
+      - { kind: absent, name: hide-github-read-file, tool: github_read_file }
+
+  - upstream: examples/mcp/surface-comms.json
+    projections:
+      - { kind: absent, name: hide-slack-post-message, tool: slack_post_message }
+      - { kind: absent, name: hide-slack-read-thread, tool: slack_read_thread }
+      - { kind: absent, name: hide-email-send, tool: email_send }
+      - { kind: absent, name: hide-email-search, tool: email_search }
+      - { kind: absent, name: hide-calendar-create-event, tool: calendar_create_event }
+      - { kind: absent, name: hide-calendar-list-events, tool: calendar_list_events }
+      - { kind: absent, name: hide-notion-create-page, tool: notion_create_page }
+      - { kind: absent, name: hide-notion-search, tool: notion_search }
+      - { kind: absent, name: hide-docs-create, tool: docs_create }
+      - { kind: absent, name: hide-docs-comment, tool: docs_comment }

@@ -8,6 +8,7 @@ import { profileCommand } from "../profile/commands.js";
 import { catalogCommand } from "../catalog/commands.js";
 import { auditCommand } from "../audit/commands.js";
 import { uiCommand } from "../ui/commands.js";
+import { traceCommand } from "../trace/commands.js";
 
 program
   .name("mcp-proj")
@@ -22,5 +23,6 @@ program.addCommand(profileCommand);
 program.addCommand(catalogCommand);
 program.addCommand(auditCommand);
 program.addCommand(uiCommand);
+program.addCommand(traceCommand);
 
 program.parse();
